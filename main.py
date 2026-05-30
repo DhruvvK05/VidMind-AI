@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
-from langchain_mistralai import ChatMistralAI
+import os
 
 from utils.audio_processor import process_input
 from utils.text_cleaner import clean_transcript
@@ -29,11 +29,17 @@ from core.suggested_questions import (
     generate_suggested_questions
 )
 
+from dotenv import load_dotenv
+
+from langchain_groq import ChatGroq
 load_dotenv()
 
-
-def get_llm_mistral():
-    return ChatMistralAI(model = "mistral-small-latest", mistral_api_key = os.getenv("MISTRAL_API_KEY"),temperature=0.2)
+def get_llm_groq():
+    return ChatGroq(
+        model="llama-3.3-70b-versatile",
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0.2
+    )
 
 def get_llm_ollama():
     return ChatOllama(model="llama3",temperature=0.2,num_ctx=8192)
@@ -105,7 +111,7 @@ def run_pipeline(
         )
     )
     suggested_questions = generate_suggested_questions(
-        get_llm_ollama(),
+        get_llm_groq(),
         summary
     )
 

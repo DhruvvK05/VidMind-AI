@@ -1,9 +1,7 @@
 
 import os
-
-from langchain_mistralai import ChatMistralAI
 from langchain_ollama import ChatOllama
-
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
@@ -12,13 +10,20 @@ from core.vector_store import (
     build_vector_store,
     get_retriever,
 )
-
+from dotenv import load_dotenv
 from core.reranker import rerank_documents
-
+load_dotenv()
 
 # =====================================================
 # LLM
 # =====================================================
+
+def get_llm_groq():
+    return ChatGroq(
+        model="llama-3.3-70b-versatile",
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0.2
+    )
 
 def get_llm_ollama():
 
@@ -64,7 +69,7 @@ def build_rag_chain(transcript,video_title):
 
     retriever = get_retriever(vector_store)
 
-    llm = get_llm_ollama()
+    llm = get_llm_groq()
 
     prompt = ChatPromptTemplate.from_template("""
 You are VidMind AI, an intelligent video understanding assistant.

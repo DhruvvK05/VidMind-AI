@@ -1,13 +1,21 @@
-from langchain_mistralai import ChatMistralAI
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_ollama import ChatOllama
 import os 
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
 
-def get_llm_mistral():
-    return ChatMistralAI(model = "mistral-small-latest", mistral_api_key = os.getenv("MISTRAL_API_KEY"),temperature=0.3)
+load_dotenv()
+
+def get_llm_groq():
+    return ChatGroq(
+        model="llama-3.3-70b-versatile",
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0.2
+    )
 
 def get_llm_ollama():
     return ChatOllama(model="llama3",temperature=0.2,num_ctx=8192)
@@ -21,7 +29,7 @@ def split_transcript(transcript: str) -> list:
     return splitter.split_text(transcript)
 
 def summarize(transcript : str) -> str:
-    llm = get_llm_ollama()
+    llm = get_llm_groq()
 
     map_prompt = ChatPromptTemplate.from_messages(
         [
@@ -56,7 +64,7 @@ def summarize(transcript : str) -> str:
     return combined_chain.invoke(combined)
 
 def generate_title(transcipt : str) -> str:
-    llm = get_llm_ollama()
+    llm = get_llm_groq()
 
     
 

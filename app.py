@@ -2,7 +2,7 @@ import os
 import tempfile
 import streamlit as st
 from dotenv import load_dotenv
-
+from langchain_groq import ChatGroq
 from utils.audio_processor import process_input
 
 from core.transcriber import (
@@ -36,6 +36,16 @@ from core.rag_chain import (
     stream_answer_multi
 )
 from langchain_ollama import ChatOllama
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def get_llm_groq():
+    return ChatGroq(
+        model="llama-3.3-70b-versatile",
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0.2
+    )
 
 def get_llm_ollama():
     return ChatOllama(model="llama3",temperature=0.2,num_ctx=8192)
@@ -222,7 +232,7 @@ def run_pipeline(source, language):
     )
     suggested_questions = generate_suggested_questions(
 
-        get_llm_ollama(),
+        get_llm_groq(),
 
         summary
 
