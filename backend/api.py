@@ -9,7 +9,10 @@ from core.rag_chain import (
     answer_multi
 )
 
-app = FastAPI()
+from fastapi.responses import FileResponse
+from utils.pdf_export import create_summary_pdf
+from utils.pdf_export import create_chat_pdf
+app = FastAPI() 
 
 workspace = {}
 multi_chat_history = {}
@@ -320,3 +323,52 @@ def delete_video(video_id: str):
     "success": True,
     "message": "Video deleted successfully"
 }
+
+
+@app.get("/video/{video_id}/pdf")
+def download_pdf(video_id: str):
+
+    if video_id not in workspace:
+        return {"error": "Video not found"}
+
+    video = workspace[video_id]
+
+    pdf_path = f"{video_id}.pdf"
+
+    create_summary_pdf(
+        video,
+        pdf_path
+    )
+
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        filename=f"{video['title']}.pdf"
+    )
+
+
+@app.get("/chat-history/{video_id}/pdf")
+def export_chat(video_id: str):
+
+    if video_id not in workspace:
+        return {"error": "Video not found"}
+
+    chat_history = workspace[
+        video_id
+    ].get(
+        "chat_history",
+        []
+    )
+
+    pdf_path = f"{video_id}_chat.pdf"
+
+    create_chat_pdf(
+        chat_history,
+        pdf_path
+    )
+
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        filename="chat_history.pdf"
+    )
