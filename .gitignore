@@ -1,13 +1,37 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Virtual Env
 .venv/
+venv/
 
-downloades/
-vector_db/
-exports/
-
+# Environment
 .env
 
-www.youtube.com_cookies.txt
-cookies.txt
+# Databases
+vector_db/
+
+# Downloads
+downloads/
+
+# Audio
+*.wav
+*.mp3
+*.webm
+
+# Generated Files
+*.pdf
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cookies
 youtube_cookies.txt
+www.youtube.com_cookies.txt

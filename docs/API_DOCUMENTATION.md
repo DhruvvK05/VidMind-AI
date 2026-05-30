@@ -1,0 +1,9 @@
+GET /
+POST /analyze
+GET /workspace
+GET /video/{id}
+POST /chat
+GET /chat-history/{id}
+POST /multi-chat
+GET /multi-chat-history/{chat_id}
+DELETE /video/{id}

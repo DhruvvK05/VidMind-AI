@@ -1,36 +1,26 @@
-def remove_sponsor_sections(text):
+def clean_transcript(text: str):
 
-    banned_phrases = [
+    sponsor_patterns = [
 
-        "this video is sponsored",
-        "sponsored by",
-        "brilliant",
-        "starbirds",
-        "free trial",
-        "membership",
-        "patreon",
-        "use the link below",
-        "thanks to our sponsor",
+        "this video is sponsored by brilliant",
+        "thanks to brilliant",
+        "brilliant.org",
+        "koji",
 
     ]
 
-    lines = text.split("\n")
+    cleaned = text
 
-    cleaned_lines = []
+    for pattern in sponsor_patterns:
 
-    for line in lines:
+        cleaned = cleaned.replace(
+            pattern,
+            ""
+        )
 
-        line_lower = line.lower()
+        cleaned = cleaned.replace(
+            pattern.title(),
+            ""
+        )
 
-        if any(
-
-            phrase in line_lower
-
-            for phrase in banned_phrases
-
-        ):
-            continue
-
-        cleaned_lines.append(line)
-
-    return "\n".join(cleaned_lines)
+    return cleaned

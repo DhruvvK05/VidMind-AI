@@ -281,6 +281,121 @@ def stream_answer_multi(
 
     return stream, sources
 
+def answer_multi(
+    workspace,
+    selected_videos,
+    question,
+    history
+):
+
+    docs = retrieve_from_videos(
+
+        workspace,
+        selected_videos,
+        question
+
+    )
+
+    docs = rerank_documents(
+
+        question,
+        docs,
+        top_k=3
+
+    )
+
+    context = format_docs(docs)
+
+    sources = []
+
+    seen_sources = set()
+
+    for doc in docs:
+
+        video_title = doc.metadata.get(
+            "video_title",
+            "Unknown Video"
+        )
+
+        timestamp = doc.metadata.get(
+            "timestamp",
+            "00:00"
+        )
+
+        source_key = (
+            video_title,
+            timestamp
+        )
+
+        if source_key in seen_sources:
+            continue
+
+        seen_sources.add(source_key)
+
+        sources.append({
+
+            "video_title": video_title,
+
+            "timestamp": timestamp,
+
+            "preview": doc.page_content[:250],
+
+            "start_seconds": doc.metadata.get(
+                "start_seconds",
+                0
+            ),
+
+            "end_seconds": doc.metadata.get(
+                "end_seconds",
+                0
+            )
+
+        })
+
+    first_video = workspace[
+        selected_videos[0]
+    ]
+
+    rag_chain = first_video[
+        "rag_chain"
+    ]
+
+    answer = rag_chain.invoke({
+
+        "question": question,
+
+        "history": history,
+
+        "context": context
+
+    })
+
+    lowered = answer.lower()
+
+    irrelevant_phrases = [
+
+        "not discussed in the video transcript",
+        "not mentioned in the transcript",
+        "cannot find information",
+        "not discussed in the video",
+
+    ]
+
+    if any(
+        phrase in lowered
+        for phrase in irrelevant_phrases
+    ):
+
+        sources = []
+
+    return {
+
+        "answer": answer,
+
+        "sources": sources
+
+    }
+
 def ask_question(
     rag_chain,
     retriever,
