@@ -9,16 +9,12 @@ from langchain_text_splitters import (
 )
 
 from utils.llm import (
-    get_llm_groq
+    get_llm_groq,
+    get_llm_gemini
 )
 
+llm = get_llm_gemini()
 
-llm = get_llm_groq()
-
-
-# =====================================================
-# SPLITTER
-# =====================================================
 
 def split_transcript(transcript: str):
 
@@ -31,10 +27,6 @@ def split_transcript(transcript: str):
 
     return splitter.split_text(transcript)
 
-
-# =====================================================
-# SUMMARY
-# =====================================================
 
 def generate_summary(transcript: str):
 
@@ -164,10 +156,6 @@ Requirements:
     })
 
 
-# =====================================================
-# ANALYSIS
-# =====================================================
-
 def generate_analysis(summary: str):
 
     prompt = f"""
@@ -280,9 +268,6 @@ Video Summary:
             "suggested_questions": []
         }
 
-# =====================================================
-# MAIN ENTRYPOINT
-# =====================================================
 
 def analyze_video(transcript: str):
 

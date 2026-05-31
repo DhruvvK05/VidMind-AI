@@ -1,7 +1,7 @@
 from langchain_ollama import ChatOllama
 from langchain_groq import ChatGroq
 import os
-
+from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,4 +21,14 @@ def get_llm_ollama():
         model="llama3",
         temperature=0.2,
         num_ctx=8192
+    )
+
+def get_llm_gemini():
+
+    return ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        google_api_key=os.getenv(
+            "GEMINI_API_KEY"
+        ),
+        temperature=0
     )

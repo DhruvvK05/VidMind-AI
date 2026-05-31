@@ -10,11 +10,11 @@ from core.vector_store import (
 )
 from dotenv import load_dotenv
 from core.reranker import rerank_documents
-from utils.llm import get_llm_ollama, get_llm_groq
+from utils.llm import get_llm_ollama, get_llm_groq, get_llm_gemini
 
 load_dotenv()
 
-llm = get_llm_ollama()
+llm = get_llm_groq()
 
 
 IRRELEVANT_PHRASES = [
