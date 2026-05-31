@@ -28,7 +28,10 @@ def create_summary_pdf(result, output_path):
         ),
 
         Paragraph(
-            result["summary"],
+            result["summary"].replace(
+                "\n",
+                "<br/>"
+            ),
             styles["BodyText"]
         ),
 
@@ -40,7 +43,10 @@ def create_summary_pdf(result, output_path):
         ),
 
         Paragraph(
-            result["key_takeaways"],
+            "<br/>".join(
+                f"• {item}"
+                for item in result["key_takeaways"]
+            ),
             styles["BodyText"]
         ),
 
@@ -52,7 +58,10 @@ def create_summary_pdf(result, output_path):
         ),
 
         Paragraph(
-            result["important_concepts"],
+            "<br/><br/>".join(
+                f"<b>{item['concept']}</b><br/>{item['explanation']}"
+                for item in result["important_concepts"]
+            ),
             styles["BodyText"]
         ),
 
@@ -64,9 +73,12 @@ def create_summary_pdf(result, output_path):
         ),
 
         Paragraph(
-            result["interesting_questions"],
+            "<br/>".join(
+                f"• {item}"
+                for item in result["interesting_questions"]
+            ),
             styles["BodyText"]
-        ),
+        )
     ]
     doc.build(content)
 
@@ -109,8 +121,11 @@ def create_chat_pdf(
 
         content.append(
 
-            Paragraph(
-                msg["content"],
+           Paragraph(
+                msg["content"].replace(
+                    "\n",
+                    "<br/>"
+                ),
                 styles["BodyText"]
             )
 

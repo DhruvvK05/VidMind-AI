@@ -20,7 +20,7 @@ def rerank_documents(
         for doc in docs
     ]
 
-    scores = reranker.predict(pairs)
+    scores = reranker.predict(pairs,batch_size=16)
 
     scored_docs = list(zip(docs, scores))
 

@@ -1,5 +1,4 @@
-# backend/main.py
-
+# backend/api.py
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uuid
@@ -8,10 +7,11 @@ from core.rag_chain import (
     ask_question,
     answer_multi
 )
-
+from fastapi.responses import PlainTextResponse
 from fastapi.responses import FileResponse
 from utils.pdf_export import create_summary_pdf
 from utils.pdf_export import create_chat_pdf
+
 app = FastAPI() 
 
 workspace = {}
@@ -51,11 +51,13 @@ def analyze_video(data: AnalyzeRequest):
         data.language
     )
 
+    result["source_url"] = data.source
+
     video_id = str(uuid.uuid4())
 
     result["chat_history"] = []
     workspace[video_id] = result
-    print("\n===== WORKSPACE =====")
+   
     for vid, video in workspace.items():
         print(vid, "->", video["title"])
 
@@ -371,4 +373,46 @@ def export_chat(video_id: str):
         pdf_path,
         media_type="application/pdf",
         filename="chat_history.pdf"
+    )
+
+
+@app.get(
+    "/video/{video_id}/transcript"
+)
+def get_transcript(
+    video_id: str
+):
+
+    if video_id not in workspace:
+
+        return {
+            "error":
+            "Video not found"
+        }
+
+    return PlainTextResponse(
+
+        workspace[
+            video_id
+        ]["transcript"]
+
+    )
+
+@app.get("/video/{video_id}/transcript/download")
+def download_transcript(video_id: str):
+
+    if video_id not in workspace:
+        return {"error": "Video not found"}
+
+    transcript = workspace[video_id]["transcript"]
+
+    file_name = f"{video_id}_transcript.txt"
+
+    with open(file_name, "w", encoding="utf-8") as f:
+        f.write(transcript)
+
+    return FileResponse(
+        file_name,
+        media_type="text/plain",
+        filename="transcript.txt"
     )

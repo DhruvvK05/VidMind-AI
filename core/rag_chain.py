@@ -1,7 +1,5 @@
 
 import os
-from langchain_ollama import ChatOllama
-from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
@@ -12,31 +10,22 @@ from core.vector_store import (
 )
 from dotenv import load_dotenv
 from core.reranker import rerank_documents
+from utils.llm import get_llm_ollama, get_llm_groq
+
 load_dotenv()
 
-# =====================================================
-# LLM
-# =====================================================
-
-def get_llm_groq():
-    return ChatGroq(
-        model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY"),
-        temperature=0.2
-    )
-
-def get_llm_ollama():
-
-    return ChatOllama(
-        model="llama3",
-        temperature=0.1,
-        num_ctx=8192
-    )
+llm = get_llm_ollama()
 
 
-# =====================================================
-# FORMAT DOCUMENTS
-# =====================================================
+IRRELEVANT_PHRASES = [
+
+    "not discussed in the video transcript",
+    "not mentioned in the transcript",
+    "cannot find information",
+    "not discussed in the video",
+
+]
+
 
 def format_docs(docs):
 
@@ -51,25 +40,86 @@ def format_docs(docs):
 
         formatted.append(
             f"""
-Timestamp: [{timestamp}]
-Content: {doc.page_content}
-"""
+            Timestamp: [{timestamp}]
+            Content: {doc.page_content}
+            """
         )
 
     return "\n\n".join(formatted)
 
+def build_sources(docs):
 
-# =====================================================
-# BUILD RAG CHAIN
-# =====================================================
+    sources = []
 
-def build_rag_chain(transcript,video_title):
+    seen_sources = set()
 
-    vector_store = build_vector_store(transcript,video_title)
+    for doc in docs:
+
+        video_title = doc.metadata.get(
+            "video_title",
+            "Unknown Video"
+        )
+
+        timestamp = doc.metadata.get(
+            "timestamp",
+            "00:00"
+        )
+
+        source_key = (
+            video_title,
+            timestamp
+        )
+
+        if source_key in seen_sources:
+            continue
+
+        seen_sources.add(source_key)
+
+        sources.append({
+
+            "video_title": video_title,
+
+            "timestamp": timestamp,
+
+            "preview": doc.page_content[:250],
+
+            "start_seconds": doc.metadata.get(
+                "start_seconds",
+                0
+            ),
+
+            "end_seconds": doc.metadata.get(
+                "end_seconds",
+                0
+            ),
+
+            "video_url": doc.metadata.get(
+                "video_url",
+                ""
+            )
+
+        })
+
+    return sources
+
+def is_irrelevant(answer):
+
+    lowered = answer.lower()
+
+    return any(
+
+        phrase in lowered
+
+        for phrase in IRRELEVANT_PHRASES
+
+    )
+
+
+def build_rag_chain(transcript,video_title,source_url):
+
+    vector_store = build_vector_store(transcript,video_title,source_url)
 
     retriever = get_retriever(vector_store)
-
-    llm = get_llm_groq()
 
     prompt = ChatPromptTemplate.from_template("""
 You are VidMind AI, an intelligent video understanding assistant.
@@ -128,9 +178,6 @@ Answer:
     return rag_chain, retriever
 
 
-# =====================================================
-# ASK QUESTION
-# =====================================================
 def retrieve_from_videos(
     workspace,
     selected_videos,
@@ -163,16 +210,6 @@ def stream_answer_multi(
         question
 
     )
-    print("\n===== BEFORE RERANK =====")
-
-    for doc in docs:
-
-        print(
-            doc.metadata.get(
-                "video_title",
-                "Unknown"
-            )
-        )
 
     docs = rerank_documents(
 
@@ -181,67 +218,10 @@ def stream_answer_multi(
         top_k=3
 
 )
-    print("\n===== AFTER RERANK =====")
-
-    for doc in docs:
-
-        print(
-            doc.metadata.get(
-                "video_title",
-                "Unknown"
-            )
-        )
 
     context = format_docs(docs)
 
-    sources = []
-
-    seen_sources = set()
-
-    for doc in docs:
-
-        video_title = doc.metadata.get(
-            "video_title",
-            "Unknown Video"
-        )
-
-        timestamp = doc.metadata.get(
-            "timestamp",
-            "00:00"
-        )
-
-        source_key = (
-            video_title,
-            timestamp
-        )
-
-        if source_key in seen_sources:
-            continue
-
-        seen_sources.add(source_key)
-
-        sources.append({
-
-            "video_title": doc.metadata.get(
-                "video_title",
-                "Unknown Video"
-            ),
-
-            "timestamp": timestamp,
-
-            "preview": doc.page_content[:250],
-
-            "start_seconds": doc.metadata.get(
-                "start_seconds",
-                0
-            ),
-
-            "end_seconds": doc.metadata.get(
-                "end_seconds",
-                0
-            )
-
-})
+    sources = build_sources(docs)
         
     first_video = workspace[
                 selected_videos[0]
@@ -266,23 +246,9 @@ def stream_answer_multi(
 
 })
 
-    lowered = full_answer.lower()
+    if is_irrelevant(full_answer):
 
-    irrelevant_phrases = [
-
-        "not discussed in the video transcript",
-        "not mentioned in the transcript",
-        "cannot find information",
-        "not discussed in the video",
-
-    ]
-
-    if any(
-        phrase in lowered
-        for phrase in irrelevant_phrases
-    ):
-
-        sources = []
+         sources = []
 
     return stream, sources
 
@@ -311,51 +277,7 @@ def answer_multi(
 
     context = format_docs(docs)
 
-    sources = []
-
-    seen_sources = set()
-
-    for doc in docs:
-
-        video_title = doc.metadata.get(
-            "video_title",
-            "Unknown Video"
-        )
-
-        timestamp = doc.metadata.get(
-            "timestamp",
-            "00:00"
-        )
-
-        source_key = (
-            video_title,
-            timestamp
-        )
-
-        if source_key in seen_sources:
-            continue
-
-        seen_sources.add(source_key)
-
-        sources.append({
-
-            "video_title": video_title,
-
-            "timestamp": timestamp,
-
-            "preview": doc.page_content[:250],
-
-            "start_seconds": doc.metadata.get(
-                "start_seconds",
-                0
-            ),
-
-            "end_seconds": doc.metadata.get(
-                "end_seconds",
-                0
-            )
-
-        })
+    sources = build_sources(docs)
 
     first_video = workspace[
         selected_videos[0]
@@ -375,23 +297,9 @@ def answer_multi(
 
     })
 
-    lowered = answer.lower()
+    if is_irrelevant(answer):
 
-    irrelevant_phrases = [
-
-        "not discussed in the video transcript",
-        "not mentioned in the transcript",
-        "cannot find information",
-        "not discussed in the video",
-
-    ]
-
-    if any(
-        phrase in lowered
-        for phrase in irrelevant_phrases
-    ):
-
-        sources = []
+         sources = []
 
     return {
 
@@ -408,17 +316,7 @@ def ask_question(
     history: str
 ):
 
-    print(f"\nQuestion: {question}")
-
-    # ==========================================
-    # RETRIEVE DOCUMENTS
-    # ==========================================
-
     docs = retriever.invoke(question)
-
-    # ==========================================
-    # RERANK DOCUMENTS
-    # ==========================================
 
     docs = rerank_documents(
         question,
@@ -426,15 +324,7 @@ def ask_question(
         top_k=5
     )
 
-    # ==========================================
-    # FORMAT CONTEXT
-    # ==========================================
-
     context = format_docs(docs)
-
-    # ==========================================
-    # GENERATE ANSWER
-    # ==========================================
 
     answer = rag_chain.invoke({
         "question": question,
@@ -442,82 +332,12 @@ def ask_question(
         "context": context,
     })
 
-    print(f"\nAnswer: {answer}")
+   
+    sources = build_sources(docs)
 
-    # ==========================================
-    # BUILD SOURCES
-    # ==========================================
+    if is_irrelevant(answer):
 
-    sources = []
-
-    seen_sources = set()
-
-    for doc in docs:
-
-        video_title = doc.metadata.get(
-            "video_title",
-            "Unknown Video"
-        )
-
-        timestamp = doc.metadata.get(
-            "timestamp",
-            "00:00"
-        )
-
-        source_key = (
-            video_title,
-            timestamp
-        )
-
-        if source_key in seen_sources:
-            continue
-
-        seen_sources.add(source_key)
-
-        preview = doc.page_content[:250]
-
-        sources.append({
-
-            "timestamp": timestamp,
-            "preview": preview,
-
-            "start_seconds": doc.metadata.get(
-                "start_seconds",
-                0
-            ),
-
-            "end_seconds": doc.metadata.get(
-                "end_seconds",
-                0
-            ),
-
-        })
-
-    # ==========================================
-    # DETECT IRRELEVANT ANSWERS
-    # ==========================================
-
-    lowered = answer.lower()
-
-    irrelevant_phrases = [
-
-        "not discussed in the video transcript",
-        "not mentioned in the transcript",
-        "cannot find information",
-        "not discussed in the video",
-
-    ]
-
-    if any(
-        phrase in lowered
-        for phrase in irrelevant_phrases
-    ):
-
-        sources = []
-
-    # ==========================================
-    # RETURN
-    # ==========================================
+         sources = []
 
     return {
         "answer": answer,
@@ -541,48 +361,7 @@ def stream_answer(
 
     context = format_docs(docs)
 
-    sources = []
-
-    seen_source = set()
-
-    for doc in docs:
-
-        video_title = doc.metadata.get(
-            "video_title",
-            "Unknown Video"
-        )
-
-        timestamp = doc.metadata.get(
-            "timestamp",
-            "00:00"
-        )
-
-        source_key = (
-            video_title,
-            timestamp
-        )
-
-        if source_key in seen_sources:
-            continue
-
-        seen_sources.add(source_key)
-
-        sources.append({
-
-            "timestamp": timestamp,
-
-            "preview": doc.page_content[:250],
-
-            "start_seconds": doc.metadata.get(
-                "start_seconds",
-                0
-            ),
-
-            "end_seconds": doc.metadata.get(
-                "end_seconds",
-                0
-            )
-        })
+    sources = build_sources(docs)
 
     stream = rag_chain.stream({
 
@@ -599,21 +378,8 @@ def stream_answer(
 
     })
 
-    lowered = full_answer.lower()
-
-    irrelevant_phrases = [
-
-        "not discussed in the video transcript",
-        "not mentioned in the transcript",
-        "cannot find information",
-        "not discussed in the video",
-
-    ]
-
-    if any(
-        phrase in lowered
-        for phrase in irrelevant_phrases
-    ):
+    if is_irrelevant(full_answer):
 
         sources = []
+
     return stream, sources

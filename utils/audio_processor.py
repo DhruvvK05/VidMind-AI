@@ -1,8 +1,9 @@
 import yt_dlp
 from pydub import AudioSegment
 import os
+import re
 
-DOWNLOAD_DIR = 'downloades'
+DOWNLOAD_DIR = 'downloads'
 os.makedirs(DOWNLOAD_DIR,exist_ok = True)
 
 def download_youtube_audio(url: str) -> str:
@@ -20,7 +21,7 @@ def download_youtube_audio(url: str) -> str:
 
         "outtmpl": output_path,
 
-        "quiet": False,
+        "quiet": True,
 
         "noplaylist": True,
 
@@ -41,8 +42,14 @@ def download_youtube_audio(url: str) -> str:
         )
 
         title = info.get(
-            "title",
-            "audio"
+                "title",
+                "audio"
+            )
+
+        title = re.sub(
+            r'[\\/*?:"<>|]',
+            "",
+            title
         )
 
         wav_file = os.path.join(

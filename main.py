@@ -1,23 +1,16 @@
 from dotenv import load_dotenv
-from langchain_ollama import ChatOllama
+
 import os
 
 from utils.audio_processor import process_input
-from utils.text_cleaner import clean_transcript
+
 from core.transcriber import (
     transcribe_all,
     transcript_to_text
 )
 
-from core.summarizer import (
-    summarize,
-    generate_title
-)
-
-from core.extractor import (
-    extract_key_takeaways,
-    extract_important_concepts,
-    extract_interesting_questions
+from core.video_analysis import (
+    analyze_video
 )
 
 from core.rag_chain import (
@@ -25,45 +18,12 @@ from core.rag_chain import (
     ask_question
 )
 
-from core.suggested_questions import (
-    generate_suggested_questions
-)
-
-from dotenv import load_dotenv
-
-from langchain_groq import ChatGroq
 load_dotenv()
 
-def get_llm_groq():
-    return ChatGroq(
-        model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY"),
-        temperature=0.2
-    )
 
-def get_llm_ollama():
-    return ChatOllama(model="llama3",temperature=0.2,num_ctx=8192)
-
-# =====================================================
-# PIPELINE
-# =====================================================
-
-def run_pipeline(
-    source: str,
-    language: str = "english"
-) -> dict:
-
-    print("Starting VidMind AI")
-
-    # ==========================================
-    # AUDIO
-    # ==========================================
+def run_pipeline(source: str,language: str = "english") -> dict:
 
     chunks = process_input(source)
-
-    # ==========================================
-    # TRANSCRIPTION
-    # ==========================================
 
     transcript_segments = transcribe_all(
         chunks,
@@ -74,77 +34,37 @@ def run_pipeline(
         transcript_segments
     )
 
-    # transcript_text = clean_transcript(
-    #     transcript_text
-    # )
-    # ==========================================
-    # SUMMARY
-    # ==========================================
-
-    title = generate_title(
+    analysis = analyze_video(
         transcript_text
     )
-
-    title = title.strip().replace('"', "")
-
-    summary = summarize(
-        transcript_text
-    )
-
-    # ==========================================
-    # INSIGHTS
-    # ==========================================
-
-    key_takeaways = extract_key_takeaways(
-        transcript_text
-    )
-
-    important_concepts = (
-        extract_important_concepts(
-            transcript_text
-        )
-    )
-
-    interesting_questions = (
-        extract_interesting_questions(
-            transcript_text
-        )
-    )
-    suggested_questions = generate_suggested_questions(
-        get_llm_groq(),
-        summary
-    )
-
-    # ==========================================
-    # RAG
-    # ==========================================
 
     rag_chain, retriever = build_rag_chain(
         transcript_segments,
-        title
+        analysis["title"],
+        source
     )
-
-    # ==========================================
-    # RETURN
-    # ==========================================
 
     return {
 
-        "title": title,
+        "title":
+            analysis["title"],
 
         "transcript": transcript_text,
+        
+        "summary":
+            analysis["summary"],
 
-        "summary": summary,
+        "key_takeaways":
+            analysis["key_takeaways"],
 
-        "key_takeaways": key_takeaways,
-
-        "important_concepts": important_concepts,
+        "important_concepts":
+            analysis["important_concepts"],
 
         "interesting_questions":
-            interesting_questions,
+            analysis["interesting_questions"],
 
         "suggested_questions":
-            suggested_questions,
+             analysis["suggested_questions"],
 
         "rag_chain": rag_chain,
 
@@ -152,10 +72,6 @@ def run_pipeline(
 
     }
 
-
-# =====================================================
-# CLI MODE
-# =====================================================
 
 if __name__ == "__main__":
 
@@ -170,35 +86,6 @@ if __name__ == "__main__":
     result = run_pipeline(
         source,
         language
-    )
-
-    print("\n" + "=" * 60)
-
-    print(
-        f"\n📌 Title:\n{result['title']}"
-    )
-
-    print(
-        f"\n📋 Summary:\n{result['summary']}"
-    )
-
-    print(
-        f"\n🧠 Key Takeaways:\n{result['key_takeaways']}"
-    )
-
-    print(
-        f"\n📚 Important Concepts:\n{result['important_concepts']}"
-    )
-
-    print(
-        f"\n❓ Interesting Questions:\n{result['interesting_questions']}"
-    )
-
-    print("\n" + "=" * 60)
-
-    print(
-        "\n💬 Chat with the video "
-        "(type 'exit' to quit)\n"
     )
 
     rag_chain = result["rag_chain"]
@@ -239,8 +126,4 @@ if __name__ == "__main__":
         history += (
             f"\nUser: {question}"
             f"\nAssistant: {answer}"
-        )
-
-        print(
-            f"\n🤖 Assistant:\n{answer}\n"
         )

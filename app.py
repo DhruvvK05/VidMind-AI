@@ -10,9 +10,7 @@ from core.transcriber import (
     transcript_to_text
 )
 
-from utils.text_cleaner import (
-    remove_sponsor_sections
-)
+
 
 from core.suggested_questions import (
     generate_suggested_questions
@@ -177,11 +175,6 @@ def run_pipeline(source, language):
     transcript_text = transcript_to_text(
         transcript_segments
     )
-
-    clean_transcript = remove_sponsor_sections(
-        transcript_text
-    )
-
     progress.progress(40)
 
     # =================================================
@@ -195,7 +188,7 @@ def run_pipeline(source, language):
     )
 
     summary = summarize(
-        clean_transcript
+        transcript_text
     )
 
     progress.progress(60)
@@ -228,7 +221,8 @@ def run_pipeline(source, language):
 
     rag_chain, retriever = build_rag_chain(
         transcript_segments,
-        title
+        title,
+        source
     )
     suggested_questions = generate_suggested_questions(
 

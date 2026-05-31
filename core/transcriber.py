@@ -93,27 +93,28 @@ def _send_to_sarvam(piece_path: str) -> str:
             "with_diarization": "false"
         }
 
-        response = requests.post(
-            SARVAM_STT_TRANSLATE_URL,
-            headers=headers,
-            files=files,
-            data=data,
-            timeout=120,
-        )
+        try:
 
+            response = requests.post(
+                SARVAM_STT_TRANSLATE_URL,
+                headers=headers,
+                files=files,
+                data=data,
+                timeout=120,
+            )
+
+        except requests.exceptions.RequestException as e:
+
+            raise RuntimeError(
+                f"Sarvam transcription failed: {str(e)}"
+            )
     if not response.ok:
 
-        print(
-            f"\nSarvam returned "
-            f"{response.status_code}"
+        raise RuntimeError(
+            f"Sarvam API Error "
+            f"{response.status_code}: "
+            f"{response.text}"
         )
-
-        print(
-            f"Response body: "
-            f"{response.text}\n"
-        )
-
-        response.raise_for_status()
 
     return response.json().get(
         "transcript",

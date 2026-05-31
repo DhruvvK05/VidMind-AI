@@ -4,17 +4,12 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 import re
 
+
 CHROMA_DIR = "vector_db"
 
-
 EMBEDDING_MODEL = (
-    "sentence-transformers/all-mpnet-base-v2"
+    "sentence-transformers/all-MiniLM-L6-v2"
 )
-
-
-# =====================================================
-# EMBEDDINGS
-# =====================================================
 
 def get_embeddings():
 
@@ -25,10 +20,6 @@ def get_embeddings():
         }
     )
 
-
-# =====================================================
-# FILTER LOW VALUE CHUNKS
-# =====================================================
 
 def is_low_value_chunk(text: str) -> bool:
 
@@ -50,11 +41,14 @@ def is_low_value_chunk(text: str) -> bool:
         "kurzgesagt viewers",
 
     ]
+    sponsor_hits = 0
 
     for phrase in banned_phrases:
-
         if phrase in text:
-            return True
+            sponsor_hits += 1
+
+    if sponsor_hits >= 3:
+        return True
 
     if len(text.split()) < 12:
         return True
@@ -62,11 +56,7 @@ def is_low_value_chunk(text: str) -> bool:
     return False
 
 
-# =====================================================
-# BUILD VECTOR STORE
-# =====================================================
-
-def build_vector_store(transcript_segments,video_title):
+def build_vector_store(transcript_segments,video_title,source_url):
 
     print("Building vector store")
 
@@ -77,10 +67,6 @@ def build_vector_store(transcript_segments,video_title):
     grouped_segments = []
 
     current_group = []
-
-    # ==========================================
-    # GROUP SEGMENTS
-    # ==========================================
 
     for segment in transcript_segments:
 
@@ -99,10 +85,6 @@ def build_vector_store(transcript_segments,video_title):
         grouped_segments.append(
             current_group
         )
-
-    # ==========================================
-    # BUILD DOCUMENTS
-    # ==========================================
 
     for i, group in enumerate(grouped_segments):
 
@@ -148,9 +130,10 @@ def build_vector_store(transcript_segments,video_title):
                         "chunk_index": i,
                         
                         "video_title":video_title,
-
+                        
                         "start_seconds": start_time,
-                        "end_seconds": end_time
+                        "end_seconds": end_time,
+                        "video_url": source_url,
      
                     }
 
@@ -158,16 +141,17 @@ def build_vector_store(transcript_segments,video_title):
 
     )
 
-    # ==========================================
-    # CREATE VECTOR STORE
-    # ==========================================
-
     embeddings = get_embeddings()
 
     collection_name = re.sub(
         r"[^a-zA-Z0-9_-]",
         "",
         video_title.replace(" ", "_").lower()
+    )
+
+    if not docs:
+        raise ValueError(
+            "No valid transcript chunks found"
     )
 
     vector_store = Chroma.from_documents(
@@ -183,9 +167,7 @@ def build_vector_store(transcript_segments,video_title):
 
     return vector_store
 
-# =====================================================
-# RETRIEVER
-# =====================================================
+
 
 def get_retriever(vector_store):
 
