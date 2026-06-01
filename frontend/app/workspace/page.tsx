@@ -15,10 +15,12 @@ import {
   CheckSquare,
   Square,
   FileVideo,
+  Search,
 } from "lucide-react";
 
 import { getWorkspace, getVideoDetails, deleteVideo, ApiError } from "@/services/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -38,6 +40,7 @@ export default function WorkspacePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch workspace videos on mount
   useEffect(() => {
@@ -135,6 +138,11 @@ export default function WorkspacePage() {
     router.push("/multi-chat");
   };
 
+  // Filter videos by search query (case-insensitive)
+  const filteredVideos = videos.filter((video) =>
+    video.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       {/* Ambient backgrounds */}
@@ -145,12 +153,12 @@ export default function WorkspacePage() {
 
       {/* Main Header */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 sm:px-8">
-        <div className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
           <div className="flex size-8 items-center justify-center rounded-lg bg-violet-600/20 ring-1 ring-violet-500/30">
             <Video className="size-4 text-violet-400" />
           </div>
           <span className="text-sm font-semibold tracking-tight">VidMind</span>
-        </div>
+        </Link>
 
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
@@ -210,6 +218,20 @@ export default function WorkspacePage() {
           </div>
         )}
 
+        {/* Search Input */}
+        {!isLoading && videos.length > 0 && (
+          <div className="mb-6 relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search videos by title..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-11 rounded-xl border-white/10 bg-white/5 text-base placeholder:text-muted-foreground/60 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
+            />
+          </div>
+        )}
+
         {/* Workspace Loaders & Card Grid */}
         {isLoading ? (
           <div className="flex min-h-[300px] items-center justify-center">
@@ -228,9 +250,24 @@ export default function WorkspacePage() {
               </Link>
             </Button>
           </div>
+        ) : filteredVideos.length === 0 ? (
+          <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-8 text-center">
+            <Search className="size-12 text-muted-foreground/60" />
+            <h2 className="mt-4 text-xl font-semibold">No videos match your search</h2>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              Try adjusting your search query or clear it to see all videos.
+            </p>
+            <Button
+              onClick={() => setSearchQuery("")}
+              variant="outline"
+              className="mt-6 rounded-xl border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
+            >
+              Clear Search
+            </Button>
+          </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {videos.map((video) => {
+            {filteredVideos.map((video) => {
               const isSelected = selectedIds.includes(video.video_id);
               return (
                 <Card

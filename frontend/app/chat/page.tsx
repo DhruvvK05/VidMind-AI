@@ -413,7 +413,7 @@ export default function ChatPage() {
       </div>
 
       <header className="flex shrink-0 items-center justify-between border-b border-white/8 px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="flex size-8 items-center justify-center rounded-lg bg-violet-600/20 ring-1 ring-violet-500/30">
             <Video className="size-4 text-violet-400" />
           </div>
@@ -423,7 +423,7 @@ export default function ChatPage() {
               {videoTitle}
             </p>
           </div>
-        </div>
+        </Link>
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
             <Link href="/">Home</Link>
@@ -441,35 +441,40 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+      <div className="flex min-h-0 flex-1 gap-0 overflow-hidden lg:flex-row flex-col">
+        {/* Chat Messages Section */}
         <div className="flex min-h-0 flex-1 flex-col">
-          <ScrollArea className="flex-1 px-4 sm:px-6">
-            <div className="mx-auto max-w-3xl space-y-8 py-6">
-              {messages.length === 0 && !isLoading && (
-                <div className="flex flex-col items-center py-16 text-center">
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-violet-600/15 ring-1 ring-violet-500/20">
-                    <Sparkles className="size-5 text-violet-400" />
+          {/* Messages Scroll Area */}
+          <ScrollArea className="flex-1 overflow-hidden">
+            <div className="px-4 sm:px-6">
+              <div className="mx-auto max-w-3xl space-y-8 py-6">
+                {messages.length === 0 && !isLoading && (
+                  <div className="flex flex-col items-center py-16 text-center">
+                    <div className="flex size-12 items-center justify-center rounded-xl bg-violet-600/15 ring-1 ring-violet-500/20">
+                      <Sparkles className="size-5 text-violet-400" />
+                    </div>
+                    <p className="mt-4 text-sm font-medium">
+                      Ask anything about this video
+                    </p>
+                    <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                      Your answers will be grounded in the transcript with source
+                      citations on the right.
+                    </p>
                   </div>
-                  <p className="mt-4 text-sm font-medium">
-                    Ask anything about this video
-                  </p>
-                  <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                    Your answers will be grounded in the transcript with source
-                    citations on the right.
-                  </p>
-                </div>
-              )}
+                )}
 
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
+                {messages.map((message) => (
+                  <MessageBubble key={message.id} message={message} />
+                ))}
 
-              {isLoading && <LoadingBubble />}
-              <div ref={messagesEndRef} />
+                {isLoading && <LoadingBubble />}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
           </ScrollArea>
 
-          <div className="shrink-0 border-t border-white/8 bg-background/80 p-4 backdrop-blur-sm sm:p-6">
+          {/* Input Area - Sticky Bottom */}
+          <div className="shrink-0 border-t border-white/8 bg-background/80 backdrop-blur-sm p-4 sm:p-6">
             <form
               onSubmit={handleSend}
               className="mx-auto max-w-3xl"
@@ -534,6 +539,7 @@ export default function ChatPage() {
           </div>
         </div>
 
+        {/* Sources Sidebar */}
         <aside className="flex min-h-0 w-full shrink-0 flex-col border-t border-white/8 lg:w-96 lg:border-t-0 lg:border-l">
           <div className="shrink-0 border-b border-white/8 px-4 py-4 sm:px-5">
             <h2 className="text-sm font-semibold">Sources</h2>
@@ -542,7 +548,7 @@ export default function ChatPage() {
             </p>
           </div>
 
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 overflow-hidden">
             <div className="space-y-3 p-4 sm:p-5">
               {activeSources.length > 0 ? (
                 activeSources.map((source, index) => (

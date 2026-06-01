@@ -67,12 +67,12 @@ function PageShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6 sm:px-8">
-        <div className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
           <div className="flex size-8 items-center justify-center rounded-lg bg-violet-600/20 ring-1 ring-violet-500/30">
             <Video className="size-4 text-violet-400" />
           </div>
           <span className="text-sm font-semibold tracking-tight">VidMind</span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
