@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import LoadingShell from "@/components/shared/loading-shell";
 import {
   ArrowLeft,
   Bot,
@@ -281,15 +282,17 @@ function EmptyState() {
           Analyze a video from the homepage first, then you can ask questions
           about its content here.
         </p>
-        <Button
-          asChild
-          className="mt-8 gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500"
-        >
-          <Link href="/">
-            <ArrowLeft className="size-4" />
-            Back to Home
-          </Link>
-        </Button>
+        <div className="mt-8 flex gap-3">
+          <Button asChild className="gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500">
+            <Link href="/analyze">
+              <ArrowLeft className="size-4" />
+              Back to Analysis
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/[0.02] hover:bg-white/[0.03]">
+            <Link href="/workspace">Back to Workspace</Link>
+          </Button>
+        </div>
       </main>
     </div>
   );
@@ -395,7 +398,7 @@ export default function ChatPage() {
   }
 
   if (!isReady) {
-    return null;
+    return <LoadingShell message="Loading chat context..." />;
   }
 
   if (!videoId) {
@@ -423,9 +426,13 @@ export default function ChatPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
-            <Link href="/workspace">
-              Workspace
-            </Link>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/workspace">Workspace</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/multi-chat">Multi Chat</Link>
           </Button>
           <div className="hidden items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:inline-flex">
             <Sparkles className="size-3.5" />

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import LoadingShell from "@/components/shared/loading-shell";
 import {
   ArrowLeft,
   Bot,
@@ -235,7 +236,7 @@ function SourceCard({ source }: { source: SourceReference }) {
 
 function EmptyState({ selectedCount }: { selectedCount: number }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
       <div className="flex size-16 items-center justify-center rounded-2xl bg-violet-600/15 ring-1 ring-violet-500/20">
         <Layers className="size-8 text-violet-400" />
       </div>
@@ -247,15 +248,17 @@ function EmptyState({ selectedCount }: { selectedCount: number }) {
           ? "Please select two or more videos from your workspace in the sidebar to start comparing them using AI."
           : `You currently have ${selectedCount} video selected. Select at least one more video in the workspace sidebar to begin.`}
       </p>
-      <Button
-        asChild
-        className="mt-8 gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500"
-      >
-        <Link href="/">
-          <ArrowLeft className="size-4" />
-          Go analyze a new video
-        </Link>
-      </Button>
+      <div className="mt-8 flex gap-3">
+        <Button asChild className="gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500">
+          <Link href="/">
+            <ArrowLeft className="size-4" />
+            Go analyze a new video
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/[0.02] hover:bg-white/[0.03]">
+          <Link href="/workspace">Back to Workspace</Link>
+        </Button>
+      </div>
     </div>
   );
 }
@@ -293,7 +296,7 @@ export default function MultiChatPage() {
           ]);
         }
       } catch (err) {
-        console.error("Failed to load workspace videos:", err);
+            console.error("Failed to load workspace videos:", err);
       } finally {
         setChatHydrated(true);
         setIsReady(true);
@@ -405,7 +408,7 @@ export default function MultiChatPage() {
   }
 
   if (!isReady) {
-    return null;
+    return <LoadingShell message="Preparing comparison workspace..." />;
   }
 
   const isChatting = selectedVideoIds.length >= 2;
@@ -434,14 +437,15 @@ export default function MultiChatPage() {
 
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
-            <Link href="/workspace">
-              Workspace
-            </Link>
+            <Link href="/">Home</Link>
           </Button>
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
-            <Link href="/chat" className="flex items-center gap-1.5">
+            <Link href="/workspace">Workspace</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/multi-chat" className="flex items-center gap-1.5">
               <Video className="size-3.5" />
-              Single Chat
+              Multi Chat
             </Link>
           </Button>
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300">

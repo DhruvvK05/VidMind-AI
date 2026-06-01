@@ -22,6 +22,7 @@ import {
   downloadTranscript,
   ApiError,
 } from "@/services/api";
+import LoadingShell from "@/components/shared/loading-shell";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -75,9 +76,13 @@ function PageShell({ children }: { children: React.ReactNode }) {
 
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
-            <Link href="/workspace">
-              Workspace
-            </Link>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/workspace">Workspace</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/multi-chat">Multi Chat</Link>
           </Button>
         </div>
       </header>
@@ -101,15 +106,17 @@ function EmptyState() {
           Analyze a video from the homepage first, then you&apos;ll see your
           summary, takeaways, and questions here.
         </p>
-        <Button
-          asChild
-          className="mt-8 gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500"
-        >
-          <Link href="/">
-            <ArrowLeft className="size-4" />
-            Back to Home
-          </Link>
-        </Button>
+        <div className="mt-8 flex gap-3">
+          <Button asChild className="gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500">
+            <Link href="/workspace">
+              <ArrowLeft className="size-4" />
+              Back to Workspace
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="gap-2 rounded-xl border-white/10 bg-white/[0.02] hover:bg-white/[0.03]">
+            <Link href="/">Home</Link>
+          </Button>
+        </div>
       </main>
     </PageShell>
   );
@@ -166,6 +173,23 @@ function AnalysisContent({ data }: { data: AnalyzeVideoResponse }) {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             {data.title}
           </h1>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button
+              asChild
+              variant="secondary"
+              className="rounded-xl px-6 py-3"
+            >
+              <Link href="/chat">Chat With Video</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-xl px-6 py-3"
+            >
+              <Link href="/workspace">Workspace</Link>
+            </Button>
+          </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button
@@ -368,7 +392,7 @@ export default function AnalyzePage() {
   }, []);
 
   if (!isReady) {
-    return null;
+    return <LoadingShell message="Preparing analysis view..." />;
   }
 
   if (!data) {

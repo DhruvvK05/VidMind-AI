@@ -99,7 +99,6 @@ export default function Home() {
 
     try {
       const response = await analyzeVideo(url);
-      console.log(response);
       sessionStorage.setItem("vidmind-analysis", JSON.stringify(response));
       router.push("/analyze");
     } catch (err) {
@@ -142,6 +141,9 @@ export default function Home() {
             <Link href="/workspace">
               Workspace
             </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/multi-chat">Multi Chat</Link>
           </Button>
           <Button variant="outline" size="sm" className="hidden sm:inline-flex">
             Sign in

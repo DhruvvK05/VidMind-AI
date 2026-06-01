@@ -152,12 +152,17 @@ export default function WorkspacePage() {
           <span className="text-sm font-semibold tracking-tight">VidMind</span>
         </div>
 
-        <Button variant="ghost" size="sm" asChild className="gap-2 text-muted-foreground hover:text-foreground">
-          <Link href="/">
-            <ArrowLeft className="size-4" />
-            Back to Home
-          </Link>
-        </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+              <Link href="/">Home</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+              <Link href="/workspace">Workspace</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+              <Link href="/multi-chat">Multi Chat</Link>
+            </Button>
+          </div>
       </header>
 
       {/* Action Overlay */}
