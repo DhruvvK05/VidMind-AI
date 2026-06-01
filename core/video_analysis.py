@@ -13,7 +13,7 @@ from utils.llm import (
     get_llm_gemini
 )
 
-llm = get_llm_gemini()
+llm = get_llm_groq()
 
 
 def split_transcript(transcript: str):
