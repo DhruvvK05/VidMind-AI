@@ -285,6 +285,7 @@ export default function MultiChatPage() {
             response.videos.some((v) => v.video_id === id)
           );
           setSelectedVideoIds(valid);
+          sessionStorage.removeItem(SELECTION_SESSION_KEY);
         } else if (response.videos.length >= 2) {
           setSelectedVideoIds([
             response.videos[0].video_id,
@@ -432,6 +433,11 @@ export default function MultiChatPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/workspace">
+              Workspace
+            </Link>
+          </Button>
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
             <Link href="/chat" className="flex items-center gap-1.5">
               <Video className="size-3.5" />

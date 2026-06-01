@@ -303,3 +303,42 @@ export async function multiChatWithVideos(
   }
 }
 
+export async function getVideoDetails(
+  videoId: string
+): Promise<AnalyzeVideoResponse> {
+  const trimmedVideoId = videoId.trim();
+
+  if (!trimmedVideoId) {
+    throw new ApiError("A video ID is required.");
+  }
+
+  try {
+    const response = await apiClient.get<AnalyzeVideoResponse>(
+      `${getApiBaseUrl()}/video/${encodeURIComponent(trimmedVideoId)}`
+    );
+    return response.data;
+  } catch (error) {
+    handleRequestError(error);
+  }
+}
+
+export async function deleteVideo(
+  videoId: string
+): Promise<{ success: boolean; message: string }> {
+  const trimmedVideoId = videoId.trim();
+
+  if (!trimmedVideoId) {
+    throw new ApiError("A video ID is required.");
+  }
+
+  try {
+    const response = await apiClient.delete<{ success: boolean; message: string }>(
+      `${getApiBaseUrl()}/video/${encodeURIComponent(trimmedVideoId)}`
+    );
+    return response.data;
+  } catch (error) {
+    handleRequestError(error);
+  }
+}
+
+

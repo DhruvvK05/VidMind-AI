@@ -421,9 +421,16 @@ export default function ChatPage() {
             </p>
           </div>
         </div>
-        <div className="hidden items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:inline-flex">
-          <Sparkles className="size-3.5" />
-          Video Chat
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/workspace">
+              Workspace
+            </Link>
+          </Button>
+          <div className="hidden items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:inline-flex">
+            <Sparkles className="size-3.5" />
+            Video Chat
+          </div>
         </div>
       </header>
 

@@ -65,11 +65,21 @@ function PageShell({ children }: { children: React.ReactNode }) {
         <div className="absolute bottom-0 right-0 h-[350px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-blue-600/8 blur-[100px]" />
       </div>
 
-      <header className="mx-auto flex max-w-5xl items-center gap-2.5 px-6 py-6 sm:px-8">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-violet-600/20 ring-1 ring-violet-500/30">
-          <Video className="size-4 text-violet-400" />
+      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6 sm:px-8">
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-violet-600/20 ring-1 ring-violet-500/30">
+            <Video className="size-4 text-violet-400" />
+          </div>
+          <span className="text-sm font-semibold tracking-tight">VidMind</span>
         </div>
-        <span className="text-sm font-semibold tracking-tight">VidMind</span>
+
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/workspace">
+              Workspace
+            </Link>
+          </Button>
+        </div>
       </header>
 
       {children}

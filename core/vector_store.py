@@ -21,12 +21,29 @@ def get_embeddings():
     )
 
 
-def is_low_value_chunk(text: str) -> bool:
+def is_low_value_chunk(text: str) -> tuple[bool, str]:
 
     text = text.lower()
 
+    # 1. High-confidence sponsor/promotional phrase matching
     banned_phrases = [
+        "sponsored by",
+        "today's sponsor",
+        "thanks to our sponsor",
+        "thanks to sponsor",
+        "check out brilliant",
+        "use code",
+        "affiliate link",
+        "promo code",
+        "discount code",
+    ]
 
+    for phrase in banned_phrases:
+        if phrase in text:
+            return True, f"{phrase}"
+
+    # 2. General promotional hit count check
+    promotional_keywords = [
         "brilliant",
         "sponsor",
         "sponsored",
@@ -39,21 +56,24 @@ def is_low_value_chunk(text: str) -> bool:
         "like and subscribe",
         "annual membership",
         "kurzgesagt viewers",
-
     ]
     sponsor_hits = 0
+    matched_keywords = []
 
-    for phrase in banned_phrases:
-        if phrase in text:
+    for word in promotional_keywords:
+        if word in text:
             sponsor_hits += 1
+            matched_keywords.append(word)
 
     if sponsor_hits >= 3:
-        return True
+        return True, f"multiple keywords matched: {matched_keywords}"
 
-    if len(text.split()) < 12:
-        return True
+    # 3. Too short check
+    word_count = len(text.split())
+    if word_count < 12:
+        return True, f"chunk too short ({word_count} words)"
 
-    return False
+    return False, ""
 
 
 def build_vector_store(transcript_segments,video_title,source_url):
@@ -61,6 +81,8 @@ def build_vector_store(transcript_segments,video_title,source_url):
     print("Building vector store")
 
     docs = []
+    removed_count = 0
+    kept_count = 0
 
     GROUP_SIZE = 8
 
@@ -112,10 +134,12 @@ def build_vector_store(transcript_segments,video_title,source_url):
 
         ])
 
-        if is_low_value_chunk(combined_text):
+        is_filtered, reason = is_low_value_chunk(combined_text)
 
-            print(f"Skipping low-value chunk {i}")
-
+        if is_filtered:
+            snippet = combined_text[:100] + "..." if len(combined_text) > 100 else combined_text
+            print(f"[Sponsor Filter]\nReason: \"{reason}\"\nChunk: \"{snippet}\"\n")
+            removed_count += 1
             continue
 
         docs.append(
@@ -139,7 +163,11 @@ def build_vector_store(transcript_segments,video_title,source_url):
 
                 )
 
-    )
+        )
+        kept_count += 1
+
+    print(f"Vector Store Build Summary: Kept {kept_count} chunks, Removed {removed_count} chunks.")
+
 
     embeddings = get_embeddings()
 

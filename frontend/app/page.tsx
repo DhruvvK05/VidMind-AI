@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowRight,
   Brain,
@@ -136,9 +137,16 @@ export default function Home() {
           </div>
           <span className="text-sm font-semibold tracking-tight">VidMind</span>
         </div>
-        <Button variant="outline" size="sm" className="hidden sm:inline-flex">
-          Sign in
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/workspace">
+              Workspace
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" className="hidden sm:inline-flex">
+            Sign in
+          </Button>
+        </div>
       </header>
 
       <main>
