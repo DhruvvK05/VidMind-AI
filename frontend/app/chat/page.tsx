@@ -6,7 +6,9 @@ import LoadingShell from "@/components/shared/loading-shell";
 import {
   ArrowLeft,
   Bot,
+  Check,
   Clock,
+  Copy,
   ExternalLink,
   Loader2,
   Send,
@@ -93,7 +95,6 @@ function loadChatMessages(videoId: string): ChatMessage[] {
     if (!raw) {
       return [];
     }
-
     const parsed: unknown = JSON.parse(raw);
 
     if (!Array.isArray(parsed)) {
@@ -160,9 +161,20 @@ function buildHistory(messages: ChatMessage[]): string {
 
 function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      console.error("Failed to copy message");
+    }
+  };
 
   return (
-    <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+      <div className={`group flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
       <div
         className={`flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 ${
           isUser
@@ -182,11 +194,26 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           isUser ? "text-right" : "text-left"
         }`}
       >
-        <p className="text-xs font-medium text-muted-foreground">
-          {isUser ? "You" : "VidMind"}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-muted-foreground">
+            {isUser ? "You" : "VidMind"}
+          </p>
+          {!isUser && (
+            <button
+              onClick={handleCopy}
+              className="rounded-md p-1 transition-all opacity-60 hover:opacity-100 group-hover:opacity-100 hover:bg-white/5"
+              title="Copy response"
+            >
+              {copied ? (
+                <Check className="size-4 text-green-400" />
+              ) : (
+                <Copy className="size-4 text-muted-foreground" />
+              )}
+            </button>
+          )}
+        </div>
         <div
-          className={`rounded-2xl px-4 py-3 text-sm leading-relaxed sm:text-base ${
+          className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
             isUser
               ? "rounded-tr-md bg-violet-600 text-white"
               : "rounded-tl-md border border-white/8 bg-white/[0.04] text-foreground"
@@ -197,6 +224,9 @@ function MessageBubble({ message }: { message: ChatMessage }) {
               {paragraph}
             </p>
           ))}
+          {!isUser && copied && (
+            <div className="mt-2 text-xs text-green-400">Copied ✓</div>
+          )}
         </div>
       </div>
     </div>
@@ -474,29 +504,37 @@ export default function ChatPage() {
           </ScrollArea>
 
           {/* Input Area - Sticky Bottom */}
-          <div className="shrink-0 border-t border-white/8 bg-background/80 backdrop-blur-sm p-4 sm:p-6">
+          <div className="shrink-0 border-t border-white/8 bg-background/80 backdrop-blur-sm">
+            {/* Suggested Follow-Ups Section */}
+            {suggestedQuestions.length > 0 && (
+              <div className="border-b border-white/8 px-4 py-3 sm:px-6">
+                <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Suggested Follow-Ups
+                </p>
+                <ScrollArea className="w-full">
+                  <div className="flex gap-2 pb-2">
+                    {suggestedQuestions.map((question, index) => (
+                      <button
+                        key={`${index}-${question}`}
+                        type="button"
+                        disabled={isLoading}
+                        onClick={() => void sendMessage(question)}
+                        className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/5 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-violet-500/40 hover:bg-violet-500/10 hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={question}
+                      >
+                        <span className="line-clamp-1">{question}</span>
+                        <Send className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
+
             <form
               onSubmit={handleSend}
-              className="mx-auto max-w-3xl"
+              className="mx-auto max-w-3xl px-4 py-4 sm:px-6 sm:py-6"
             >
-              {suggestedQuestions.length > 0 && (
-                <div className="mb-3 flex flex-wrap gap-2">
-                  {suggestedQuestions.map((question, index) => (
-                    <Button
-                      key={`${index}-${question}`}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={isLoading}
-                      onClick={() => void sendMessage(question)}
-                      className="h-auto max-w-full whitespace-normal rounded-full border-violet-500/20 bg-violet-500/5 px-4 py-2 text-left text-sm font-normal text-foreground hover:bg-violet-500/10"
-                    >
-                      {question}
-                    </Button>
-                  ))}
-                </div>
-              )}
-
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                 <Textarea
                   placeholder="Ask a question about this video..."
@@ -506,14 +544,14 @@ export default function ChatPage() {
                     if (error) setError(null);
                   }}
                   disabled={isLoading}
-                  className="min-h-[52px] max-h-32 resize-none rounded-xl border-white/10 bg-white/5 px-4 py-3 text-base placeholder:text-muted-foreground/60 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
+                  className="min-h-[52px] max-h-32 resize-none rounded-xl border-white/10 bg-white/5 px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
                   rows={1}
                 />
                 <Button
                   type="submit"
                   size="lg"
                   disabled={isLoading || !input.trim()}
-                  className="h-[52px] shrink-0 gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500 sm:w-auto"
+                  className="h-[52px] shrink-0 gap-2 rounded-xl bg-violet-600 px-8 font-medium hover:bg-violet-500 sm:w-auto"
                 >
                   {isLoading ? (
                     <>

@@ -174,30 +174,29 @@ function AnalysisContent({ data }: { data: AnalyzeVideoResponse }) {
             {data.title}
           </h1>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button
               asChild
-              variant="secondary"
-              className="rounded-xl px-6 py-3"
+              className="gap-2 rounded-xl bg-violet-600 px-6 font-medium hover:bg-violet-500"
             >
               <Link href="/chat">Chat With Video</Link>
             </Button>
             <Button
               asChild
               variant="outline"
-              className="rounded-xl px-6 py-3"
+              className="gap-2 rounded-xl border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
             >
               <Link href="/workspace">Workspace</Link>
             </Button>
           </div>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
             <Button
               type="button"
               variant="outline"
               disabled={downloading !== null}
               onClick={handleDownloadSummaryPdf}
-              className="gap-2 rounded-xl border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+              className="gap-2 rounded-xl border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
             >
               {downloading === "pdf" ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -211,7 +210,7 @@ function AnalysisContent({ data }: { data: AnalyzeVideoResponse }) {
               variant="outline"
               disabled={downloading !== null}
               onClick={handleDownloadTranscript}
-              className="gap-2 rounded-xl border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+              className="gap-2 rounded-xl border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
             >
               {downloading === "transcript" ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -228,47 +227,43 @@ function AnalysisContent({ data }: { data: AnalyzeVideoResponse }) {
         </div>
 
         <div className="flex flex-col gap-6">
-          <Card className="border-white/8 bg-white/[0.03] py-6 ring-white/10">
-            <CardHeader className="px-6">
+          <Card className="border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]">
+            <CardHeader className="px-6 pt-6 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
-                  <BookOpen className="size-4 text-violet-400" />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
+                  <BookOpen className="size-5 text-violet-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Summary</CardTitle>
-                  <CardDescription>
-                    AI-generated overview of the video content
-                  </CardDescription>
+                  <CardTitle className="text-base font-semibold">Summary</CardTitle>
+                  <CardDescription className="mt-0.5 text-xs">AI-generated overview of the video content</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="px-6">
-              <p className="text-base leading-relaxed text-muted-foreground">
+            <CardContent className="px-6 pb-6">
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 {data.summary}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-white/8 bg-white/[0.03] py-6 ring-white/10">
-            <CardHeader className="px-6">
+          <Card className="border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]">
+            <CardHeader className="px-6 pt-6 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
-                  <ListChecks className="size-4 text-violet-400" />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
+                  <ListChecks className="size-5 text-violet-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Key Takeaways</CardTitle>
-                  <CardDescription>
-                    The most important points to remember
-                  </CardDescription>
+                  <CardTitle className="text-base font-semibold">Key Takeaways</CardTitle>
+                  <CardDescription className="mt-0.5 text-xs">The most important points to remember</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="px-6">
+            <CardContent className="px-6 pb-6">
               <ul className="space-y-3">
                 {data.key_takeaways.map((takeaway, index) => (
                   <li
                     key={`${index}-${takeaway}`}
-                    className="flex gap-3 text-sm leading-relaxed sm:text-base"
+                    className="flex gap-3 text-sm leading-relaxed"
                   >
                     <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-violet-600/15 text-xs font-medium text-violet-400">
                       {index + 1}
@@ -280,31 +275,29 @@ function AnalysisContent({ data }: { data: AnalyzeVideoResponse }) {
             </CardContent>
           </Card>
 
-          <Card className="border-white/8 bg-white/[0.03] py-6 ring-white/10">
-            <CardHeader className="px-6">
+          <Card className="border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]">
+            <CardHeader className="px-6 pt-6 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
-                  <Lightbulb className="size-4 text-violet-400" />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
+                  <Lightbulb className="size-5 text-violet-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Important Concepts</CardTitle>
-                  <CardDescription>
-                    Core ideas explained in detail
-                  </CardDescription>
+                  <CardTitle className="text-base font-semibold">Important Concepts</CardTitle>
+                  <CardDescription className="mt-0.5 text-xs">Core ideas explained in detail</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="px-6">
+            <CardContent className="px-6 pb-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 {data.important_concepts.map((item, index) => (
                   <div
                     key={`${index}-${item.concept}`}
-                    className="rounded-lg border border-white/8 bg-white/[0.02] p-4"
+                    className="rounded-lg border border-white/8 bg-white/[0.02] p-4 transition-colors hover:border-violet-500/20 hover:bg-white/[0.04]"
                   >
                     <h3 className="font-medium text-foreground">
                       {item.concept}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                       {item.explanation}
                     </p>
                   </div>
@@ -314,28 +307,24 @@ function AnalysisContent({ data }: { data: AnalyzeVideoResponse }) {
           </Card>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <Card className="border-white/8 bg-white/[0.03] py-6 ring-white/10">
-              <CardHeader className="px-6">
+            <Card className="border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]">
+              <CardHeader className="px-6 pt-6 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
-                    <HelpCircle className="size-4 text-violet-400" />
+                  <div className="flex size-10 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
+                    <HelpCircle className="size-5 text-violet-400" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">
-                      Interesting Questions
-                    </CardTitle>
-                    <CardDescription>
-                      Thought-provoking questions raised by the content
-                    </CardDescription>
+                    <CardTitle className="text-base font-semibold">Interesting Questions</CardTitle>
+                    <CardDescription className="mt-0.5 text-xs">Thought-provoking questions raised by the content</CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="px-6">
+              <CardContent className="px-6 pb-6">
                 <ul className="space-y-3">
                   {data.interesting_questions.map((question, index) => (
                     <li
                       key={`${index}-${question}`}
-                      className="flex gap-3 text-sm leading-relaxed sm:text-base"
+                      className="flex gap-3 text-sm leading-relaxed"
                     >
                       <span className="mt-2 size-1.5 shrink-0 rounded-full bg-violet-400" />
                       <span className="text-muted-foreground">{question}</span>
@@ -345,28 +334,24 @@ function AnalysisContent({ data }: { data: AnalyzeVideoResponse }) {
               </CardContent>
             </Card>
 
-            <Card className="border-white/8 bg-white/[0.03] py-6 ring-white/10">
-              <CardHeader className="px-6">
+            <Card className="border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]">
+              <CardHeader className="px-6 pt-6 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
-                    <MessageCircleQuestion className="size-4 text-violet-400" />
+                  <div className="flex size-10 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20">
+                    <MessageCircleQuestion className="size-5 text-violet-400" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">
-                      Suggested Questions
-                    </CardTitle>
-                    <CardDescription>
-                      Questions you might want to explore next
-                    </CardDescription>
+                    <CardTitle className="text-base font-semibold">Suggested Questions</CardTitle>
+                    <CardDescription className="mt-0.5 text-xs">Questions you might want to explore next</CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="px-6">
-                <ul className="space-y-3">
+              <CardContent className="px-6 pb-6">
+                <ul className="space-y-2">
                   {data.suggested_questions.map((question, index) => (
                     <li
                       key={`${index}-${question}`}
-                      className="rounded-lg border border-violet-500/15 bg-violet-500/5 px-4 py-3 text-sm leading-relaxed text-muted-foreground sm:text-base"
+                      className="rounded-lg border border-violet-500/15 bg-violet-500/5 px-4 py-3 text-xs leading-relaxed text-muted-foreground transition-colors hover:bg-violet-500/10"
                     >
                       {question}
                     </li>

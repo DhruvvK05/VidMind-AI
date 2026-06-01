@@ -223,9 +223,9 @@ export default function Home() {
         </section>
 
         {/* Features */}
-        <section className="mx-auto max-w-6xl px-6 py-20 sm:px-8">
+        <section className="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-20">
           <div className="mb-12 text-center">
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Everything you need to understand video
             </h2>
             <p className="mt-3 text-muted-foreground">
@@ -238,14 +238,14 @@ export default function Home() {
             {features.map((feature) => (
               <Card
                 key={feature.title}
-                className="group border-white/8 bg-white/[0.03] py-6 ring-white/10 transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]"
+                className="group border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]"
               >
-                <CardHeader className="px-6">
-                  <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20 transition-colors group-hover:bg-violet-600/25">
+                <CardHeader className="px-6 pt-6 pb-4">
+                  <div className="mb-4 flex size-11 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20 transition-colors group-hover:bg-violet-600/25">
                     <feature.icon className="size-5 text-violet-400" />
                   </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
+                  <CardTitle className="text-base font-semibold">{feature.title}</CardTitle>
+                  <CardDescription className="mt-2 text-sm leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardHeader>
@@ -255,9 +255,9 @@ export default function Home() {
         </section>
 
         {/* How It Works */}
-        <section className="mx-auto max-w-6xl px-6 py-20 sm:px-8">
+        <section className="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-20">
           <div className="mb-12 text-center">
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               How it works
             </h2>
             <p className="mt-3 text-muted-foreground">
@@ -269,20 +269,20 @@ export default function Home() {
             {steps.map((item, index) => (
               <Card
                 key={item.title}
-                className="relative border-white/8 bg-white/[0.03] py-8 ring-white/10"
+                className="relative border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05]"
               >
                 {index < steps.length - 1 && (
                   <div className="absolute -right-3 top-1/2 hidden h-px w-6 bg-gradient-to-r from-violet-500/40 to-transparent md:block" />
                 )}
-                <CardContent className="px-6">
+                <CardContent className="px-6 py-6">
                   <span className="text-xs font-mono font-medium text-violet-400">
                     Step {item.step}
                   </span>
                   <div className="mt-4 flex size-11 items-center justify-center rounded-xl bg-violet-600/15 ring-1 ring-violet-500/20">
                     <item.icon className="size-5 text-violet-400" />
                   </div>
-                  <CardTitle className="mt-5 text-lg">{item.title}</CardTitle>
-                  <CardDescription className="mt-2 text-sm leading-relaxed">
+                  <CardTitle className="mt-5 text-base font-semibold">{item.title}</CardTitle>
+                  <CardDescription className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {item.description}
                   </CardDescription>
                 </CardContent>

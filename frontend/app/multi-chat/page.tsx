@@ -6,7 +6,9 @@ import LoadingShell from "@/components/shared/loading-shell";
 import {
   ArrowLeft,
   Bot,
+  Check,
   Clock,
+  Copy,
   ExternalLink,
   Loader2,
   Send,
@@ -86,7 +88,7 @@ function loadMultiChatMessages(chatId: string): ChatMessage[] {
     if (!raw) {
       return [];
     }
-
+  
     const parsed: unknown = JSON.parse(raw);
 
     if (!Array.isArray(parsed)) {
@@ -126,9 +128,24 @@ function buildHistory(messages: ChatMessage[]): string {
 
 function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      console.error("Failed to copy message");
+    }
+  };
 
   return (
-    <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+    <div
+      className={`group flex gap-3 ${
+        isUser ? "flex-row-reverse" : "flex-row"
+      }`}
+    >
       <div
         className={`flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 ${
           isUser
@@ -148,9 +165,26 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           isUser ? "text-right" : "text-left"
         }`}
       >
-        <p className="text-xs font-medium text-muted-foreground">
-          {isUser ? "You" : "VidMind AI"}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-muted-foreground">
+            {isUser ? "You" : "VidMind AI"}
+          </p>
+
+          {!isUser && (
+            <button
+              onClick={handleCopy}
+              className="rounded-md p-1 opacity-60 transition-all hover:bg-white/5 hover:opacity-100 group-hover:opacity-100"
+              title="Copy response"
+            >
+              {copied ? (
+                <Check className="size-4 text-green-400" />
+              ) : (
+                <Copy className="size-4 text-muted-foreground" />
+              )}
+            </button>
+          )}
+        </div>
+
         <div
           className={`rounded-2xl px-4 py-3 text-sm leading-relaxed sm:text-base ${
             isUser
@@ -163,6 +197,12 @@ function MessageBubble({ message }: { message: ChatMessage }) {
               {paragraph}
             </p>
           ))}
+
+          {!isUser && copied && (
+            <div className="mt-2 text-xs text-green-400">
+              Copied ✓
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -236,7 +276,8 @@ function SourceCard({ source }: { source: SourceReference }) {
 
 function EmptyState({ selectedCount }: { selectedCount: number }) {
   return (
-      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+    <div className="dark flex h-screen flex-col overflow-hidden bg-background text-foreground">
+      <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
       <div className="flex size-16 items-center justify-center rounded-2xl bg-violet-600/15 ring-1 ring-violet-500/20">
         <Layers className="size-8 text-violet-400" />
       </div>
@@ -259,6 +300,7 @@ function EmptyState({ selectedCount }: { selectedCount: number }) {
           <Link href="/workspace">Back to Workspace</Link>
         </Button>
       </div>
+      </main>
     </div>
   );
 }
@@ -536,10 +578,10 @@ export default function MultiChatPage() {
               </ScrollArea>
 
               {/* Input Area - Sticky Bottom */}
-              <div className="shrink-0 border-t border-white/8 bg-background/80 backdrop-blur-sm p-4 sm:p-6">
+              <div className="shrink-0 border-t border-white/8 bg-background/80 backdrop-blur-sm">
                 <form
                   onSubmit={handleSend}
-                  className="mx-auto max-w-3xl"
+                  className="mx-auto max-w-3xl px-4 py-4 sm:px-6 sm:py-6"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                     <Textarea
@@ -550,14 +592,14 @@ export default function MultiChatPage() {
                         if (error) setError(null);
                       }}
                       disabled={isLoading}
-                      className="min-h-[52px] max-h-32 resize-none rounded-xl border-white/10 bg-white/5 px-4 py-3 text-base placeholder:text-muted-foreground/60 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
+                      className="min-h-[52px] max-h-32 resize-none rounded-xl border-white/10 bg-white/5 px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
                       rows={1}
                     />
                     <Button
                       type="submit"
                       size="lg"
                       disabled={isLoading || !input.trim()}
-                      className="h-[52px] shrink-0 gap-2 rounded-xl bg-violet-600 px-6 hover:bg-violet-500 sm:w-auto"
+                      className="h-[52px] shrink-0 gap-2 rounded-xl bg-violet-600 px-8 font-medium hover:bg-violet-500 sm:w-auto"
                     >
                       {isLoading ? (
                         <>

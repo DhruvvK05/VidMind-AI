@@ -272,13 +272,13 @@ export default function WorkspacePage() {
               return (
                 <Card
                   key={video.video_id}
-                  className={`group relative flex flex-col justify-between border-white/8 bg-white/[0.03] transition-all hover:border-violet-500/25 hover:bg-white/[0.05] ${
-                    isSelected ? "border-violet-500/30 ring-1 ring-violet-500/20 bg-violet-500/[0.02]" : ""
+                  className={`group relative flex flex-col justify-between border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05] ${
+                    isSelected ? "border-violet-500/20 ring-1 ring-violet-500/20 bg-violet-500/[0.02]" : ""
                   }`}
                 >
-                  <CardHeader className="p-5 pb-3">
+                  <CardHeader className="px-5 pt-5 pb-3">
                     {/* Top Select Toggle */}
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-3">
                       <CardTitle className="line-clamp-2 text-base font-semibold leading-snug text-foreground">
                         {video.title}
                       </CardTitle>
@@ -298,13 +298,9 @@ export default function WorkspacePage() {
                         )}
                       </button>
                     </div>
-
-                    <CardDescription className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/60">
-                      ID: {video.video_id}
-                    </CardDescription>
                   </CardHeader>
 
-                  <CardContent className="px-5 pb-5 pt-3 border-t border-white/5 bg-white/[0.01]">
+                  <CardContent className="px-5 pb-5 pt-4 border-t border-white/5 bg-white/[0.01]">
                     <div className="flex items-center gap-1">
                       {/* Open Analysis Action */}
                       <Button
@@ -333,7 +329,7 @@ export default function WorkspacePage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(video.video_id)}
-                        className="size-9 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                        className="size-9 rounded-lg text-red-400/70 hover:bg-red-500/10 hover:text-red-400"
                       >
                         <Trash2 className="size-3.5" />
                       </Button>
