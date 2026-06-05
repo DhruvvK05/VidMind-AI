@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   Brain,
+  Check,
   Clock,
   Layers,
   Link2,
@@ -160,7 +161,7 @@ export default function Home() {
               AI-Powered Video Intelligence
             </div>
 
-            <h1 className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-7xl">
+            <h1 className="bg-gradient-to-r from-white via-zinc-100 to-zinc-400 bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-7xl">
               VidMind
             </h1>
 
@@ -169,10 +170,28 @@ export default function Home() {
             </p>
 
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Transform any video into actionable intelligence. Generate AI
-              summaries, extract key concepts, ask questions, and chat with
-              your content — all with source-grounded answers and timestamps.
+              Transform any video into actionable intelligence. Paste a YouTube URL to instantly analyze transcripts, generate insights, and get verified citations.
             </p>
+
+            {/* Core Value Propositions Grid */}
+            <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3 max-w-md text-left text-sm font-semibold text-foreground/80">
+              <div className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-violet-500 shrink-0" />
+                <span>Understand videos faster</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-violet-500 shrink-0" />
+                <span>Chat with any video</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-violet-500 shrink-0" />
+                <span>Compare multiple videos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-violet-500 shrink-0" />
+                <span>Export insights</span>
+              </div>
+            </div>
 
             <form
               onSubmit={handleAnalyze}
@@ -216,9 +235,46 @@ export default function Home() {
               )}
             </form>
 
-            <p className="mt-4 text-xs text-muted-foreground/70">
-              No account required · Supports YouTube · Results in seconds
+            <p className="mt-4 text-xs text-muted-foreground/75">
+              No signup required. Analyze and chat with videos instantly.
             </p>
+
+            {/* Clickable Hover Trust Cards */}
+            <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 w-full max-w-2xl border-t border-white/5 pt-8">
+              {[
+                {
+                  title: "Source Grounded Answers",
+                  desc: "→ Every answer includes transcript citations.",
+                },
+                {
+                  title: "Timestamp Citations",
+                  desc: "→ Jump directly to the exact moment in the video.",
+                },
+                {
+                  title: "Multi Video Comparison",
+                  desc: "→ Compare ideas across multiple videos.",
+                },
+                {
+                  title: "AI Video Chat",
+                  desc: "→ Ask questions about any analyzed video.",
+                },
+              ].map((badge) => (
+                <div
+                  key={badge.title}
+                  className="group relative rounded-xl border border-white/5 bg-white/[0.015] p-3 text-left transition-all duration-300 hover:border-violet-500/20 hover:bg-violet-500/[0.02] cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Check className="size-3.5 text-emerald-400 shrink-0" />
+                    <span className="text-xs font-semibold text-foreground/90 group-hover:text-violet-300 transition-colors">
+                      {badge.title}
+                    </span>
+                  </div>
+                  <p className="mt-1 pl-5 text-[10px] leading-relaxed text-muted-foreground/0 group-hover:text-muted-foreground/80 transition-all duration-300 max-h-0 group-hover:max-h-8 overflow-hidden">
+                    {badge.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

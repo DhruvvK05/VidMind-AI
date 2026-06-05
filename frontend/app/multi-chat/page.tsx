@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import LoadingShell from "@/components/shared/loading-shell";
+import AssistantMarkdown from "@/components/shared/assistant-markdown";
 import {
   ArrowLeft,
   Bot,
@@ -15,19 +16,11 @@ import {
   Sparkles,
   User,
   Video,
-  VideoOff,
   Layers,
 } from "lucide-react";
 
 import { getWorkspace, multiChatWithVideos, ApiError } from "@/services/api";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import type { SourceReference, ChatMessage, WorkspaceVideo } from "@/types/chat";
@@ -142,7 +135,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div
-      className={`group flex gap-3 ${
+      className={`group flex gap-3.5 ${
         isUser ? "flex-row-reverse" : "flex-row"
       }`}
     >
@@ -161,7 +154,9 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       </div>
 
       <div
-        className={`max-w-[85%] space-y-1 sm:max-w-[75%] ${
+        className={`space-y-1.5 ${
+          isUser ? "max-w-[86%] sm:max-w-[72%]" : "max-w-[95%] sm:max-w-[80%]"
+        } ${
           isUser ? "text-right" : "text-left"
         }`}
       >
@@ -186,17 +181,21 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         </div>
 
         <div
-          className={`rounded-2xl px-4 py-3 text-sm leading-relaxed sm:text-base ${
+          className={`rounded-2xl px-4 py-3.5 ${
             isUser
-              ? "rounded-tr-md bg-violet-600 text-white"
-              : "rounded-tl-md border border-white/8 bg-white/[0.04] text-foreground"
+              ? "text-sm rounded-tr-md bg-violet-600/95 text-white shadow-sm shadow-violet-950/30"
+              : "rounded-tl-md border border-white/5 bg-white/[0.02] backdrop-blur-md text-foreground shadow-sm sm:px-6 sm:py-5"
           }`}
         >
-          {message.content.split("\n\n").map((paragraph, index) => (
-            <p key={index} className={index > 0 ? "mt-3" : undefined}>
-              {paragraph}
-            </p>
-          ))}
+          {isUser ? (
+            message.content.split("\n\n").map((paragraph, index) => (
+              <p key={index} className={`leading-relaxed ${index > 0 ? "mt-3" : ""}`}>
+                {paragraph}
+              </p>
+            ))
+          ) : (
+            <AssistantMarkdown content={message.content} />
+          )}
 
           {!isUser && copied && (
             <div className="mt-2 text-xs text-green-400">
@@ -215,9 +214,9 @@ function LoadingBubble() {
       <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10">
         <Bot className="size-4 text-muted-foreground" />
       </div>
-      <div className="space-y-1">
-        <p className="text-xs font-medium text-muted-foreground">VidMind AI</p>
-        <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-white/8 bg-white/[0.04] px-4 py-3">
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-muted-foreground">VidMind AI</p>
+        <div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-white/5 bg-white/[0.02] backdrop-blur-md px-5 py-4">
           <Loader2 className="size-4 animate-spin text-violet-400" />
           <span className="text-sm text-muted-foreground">Thinking...</span>
         </div>
@@ -232,45 +231,34 @@ function SourceCard({ source }: { source: SourceReference }) {
     : null;
 
   return (
-    <Card className="border-white/8 bg-white/[0.03] py-4 ring-white/10">
-      <CardHeader className="gap-2 px-4">
-        <CardTitle className="line-clamp-2 text-sm font-medium leading-snug">
+    <article className="rounded-xl border border-white/5 bg-white/[0.015] p-3 transition-colors hover:border-white/10 hover:bg-white/[0.025]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="line-clamp-2 text-xs font-semibold leading-relaxed text-foreground/90">
           {source.video_title}
-        </CardTitle>
-        <CardDescription className="flex items-center gap-1.5 text-xs text-violet-400">
-          <Clock className="size-3 text-violet-400" />
-          {source.timestamp}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 px-4">
-        <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-          {source.preview}
         </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full gap-2 border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
-          disabled={!timestampUrl}
-          asChild={!!timestampUrl}
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-violet-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-violet-300 ring-1 ring-violet-500/20">
+          {source.timestamp}
+        </span>
+      </div>
+      <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground/80">
+        {source.preview}
+      </p>
+      {timestampUrl ? (
+        <a
+          href={timestampUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-medium text-violet-400 transition-colors hover:text-violet-300 hover:underline"
         >
-          {timestampUrl ? (
-            <a
-              href={timestampUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Jump To Moment
-              <ExternalLink className="size-3.5" />
-            </a>
-          ) : (
-            <>
-              Jump To Moment
-              <ExternalLink className="size-3.5" />
-            </>
-          )}
-        </Button>
-      </CardContent>
-    </Card>
+          Open at timestamp
+          <ExternalLink className="size-3" />
+        </a>
+      ) : (
+        <p className="mt-2.5 text-[11px] text-muted-foreground/60">
+          Timestamp link unavailable
+        </p>
+      )}
+    </article>
   );
 }
 
@@ -454,6 +442,11 @@ export default function MultiChatPage() {
   }
 
   const isChatting = selectedVideoIds.length >= 2;
+  const selectedVideos = workspaceVideos.filter((video) =>
+    selectedVideoIds.includes(video.video_id)
+  );
+  const visibleContextTitles = selectedVideos.slice(0, 5);
+  const remainingContextCount = selectedVideos.length - visibleContextTitles.length;
 
   return (
     <div className="dark flex h-screen flex-col overflow-hidden bg-background text-foreground">
@@ -464,7 +457,7 @@ export default function MultiChatPage() {
       </div>
 
       {/* Main Header */}
-      <header className="flex shrink-0 items-center justify-between border-b border-white/8 px-4 py-4 sm:px-6">
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-4 sm:px-6">
         <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="flex size-8 items-center justify-center rounded-lg bg-violet-600/20 ring-1 ring-violet-500/30">
             <Layers className="size-4 text-violet-400" />
@@ -476,8 +469,7 @@ export default function MultiChatPage() {
             </p>
           </div>
         </Link>
-
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
             <Link href="/">Home</Link>
           </Button>
@@ -498,10 +490,10 @@ export default function MultiChatPage() {
       </header>
 
       {/* Multi-Pane Workspace Body */}
-      <div className="flex min-h-0 flex-1 flex-row overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         
         {/* Left Pane: Workspace Selection Sidebar */}
-        <aside className="flex min-h-0 w-80 shrink-0 flex-col border-r border-white/8 bg-background/40">
+        <aside className="flex min-h-0 max-h-[34vh] w-full shrink-0 flex-col border-b border-white/8 bg-background/40 lg:max-h-none lg:w-80 lg:border-r lg:border-b-0">
           <div className="shrink-0 border-b border-white/8 p-4">
             <h2 className="text-sm font-semibold text-foreground">Videos in Workspace</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -549,6 +541,37 @@ export default function MultiChatPage() {
             <EmptyState selectedCount={selectedVideoIds.length} />
           ) : (
             <>
+              <div className="shrink-0 border-b border-white/8 px-4 py-4 sm:px-6">
+                <div className="mx-auto max-w-3xl">
+                  <div className="rounded-2xl border border-white/5 bg-white/[0.015] px-5 py-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center">
+                      <div>
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                          Comparing Videos
+                        </h3>
+                        <p className="mt-1 text-xs text-muted-foreground/80">
+                          Ask questions that compare ideas across the selected videos.
+                        </p>
+                      </div>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-violet-500/10 px-2.5 py-0.5 text-xs font-semibold text-violet-300 ring-1 ring-violet-500/20">
+                        Videos Selected: {selectedVideos.length}
+                      </span>
+                    </div>
+                    
+                    <div className="mt-3.5 grid gap-2 sm:grid-cols-2">
+                      {selectedVideos.map((video) => (
+                        <div
+                          key={video.video_id}
+                          className="flex items-center gap-2 text-sm text-foreground/95"
+                        >
+                          <Check className="size-3.5 shrink-0 text-violet-400" />
+                          <span className="line-clamp-1 font-medium">{video.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
               {/* Messages Scroll Area */}
               <ScrollArea className="flex-1 overflow-hidden">
                 <div className="px-4 sm:px-6">
@@ -562,7 +585,7 @@ export default function MultiChatPage() {
                           Ask anything about the selected videos
                         </p>
                         <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                          Your answers will be cross-referenced across the transcripts of all checked videos.
+                          Ask for agreements, differences, or timeline comparisons across the active transcript set.
                         </p>
                       </div>
                     )}
@@ -628,11 +651,11 @@ export default function MultiChatPage() {
 
         {/* Right Pane: Source Citations Sidebar */}
         {isChatting && (
-          <aside className="flex min-h-0 w-80 shrink-0 flex-col border-l border-white/8 bg-background/40">
+          <aside className="flex min-h-0 max-h-[42vh] w-full shrink-0 flex-col border-t border-white/8 bg-background/40 lg:max-h-none lg:w-80 lg:border-l lg:border-t-0">
             <div className="shrink-0 border-b border-white/8 px-4 py-4 sm:px-5">
-              <h2 className="text-sm font-semibold">Grounded Sources</h2>
+              <h2 className="text-sm font-semibold">References</h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Citations retrieved for the last message
+                Source snippets from the latest comparison response
               </p>
             </div>
 

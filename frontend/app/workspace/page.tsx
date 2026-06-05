@@ -192,7 +192,7 @@ export default function WorkspacePage() {
               <Layers className="size-3.5" />
               Workspace Dashboard
             </div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl bg-gradient-to-r from-white via-white to-zinc-400 bg-clip-text text-transparent">
               Analyzed Video Library
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
@@ -238,15 +238,20 @@ export default function WorkspacePage() {
             <Loader2 className="size-8 animate-spin text-violet-400" />
           </div>
         ) : videos.length === 0 ? (
-          <div className="flex min-h-[350px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-8 text-center">
-            <FileVideo className="size-12 text-muted-foreground/60" />
-            <h2 className="mt-4 text-xl font-semibold">No analyzed videos yet</h2>
-            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-              Paste a YouTube URL on the homepage first to build summaries and enable RAG chat models.
+          <div className="relative flex min-h-[380px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/5 bg-white/[0.01] p-8 text-center backdrop-blur-sm">
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-violet-600/5 to-transparent blur-xl rounded-2xl" />
+            <div className="flex size-14 items-center justify-center rounded-full bg-violet-600/10 ring-8 ring-violet-500/5">
+              <FileVideo className="size-7 text-violet-400" />
+            </div>
+            <h2 className="mt-6 text-xl font-bold tracking-tight text-foreground">
+              Your AI workspace is empty
+            </h2>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+              Analyze your first video to generate instant summaries, unlock RAG-powered interactive chats, and compare video concepts.
             </p>
-            <Button asChild className="mt-6 gap-2 rounded-xl bg-violet-600 hover:bg-violet-500">
+            <Button asChild className="mt-8 gap-2 rounded-xl bg-violet-600 px-6 font-semibold hover:bg-violet-500 shadow-lg shadow-violet-950/20">
               <Link href="/">
-                Go Analyze a Video
+                Analyze a Video
               </Link>
             </Button>
           </div>
@@ -272,16 +277,22 @@ export default function WorkspacePage() {
               return (
                 <Card
                   key={video.video_id}
-                  className={`group relative flex flex-col justify-between border-white/8 bg-white/[0.03] transition-colors hover:border-violet-500/20 hover:bg-white/[0.05] ${
-                    isSelected ? "border-violet-500/20 ring-1 ring-violet-500/20 bg-violet-500/[0.02]" : ""
+                  className={`group relative flex flex-col justify-between border-white/5 bg-white/[0.015] transition-all duration-300 hover:border-violet-500/15 hover:bg-white/[0.03] ${
+                    isSelected ? "border-violet-500/20 ring-1 ring-violet-500/20 bg-violet-500/[0.01]" : ""
                   }`}
                 >
                   <CardHeader className="px-5 pt-5 pb-3">
                     {/* Top Select Toggle */}
                     <div className="flex items-start justify-between gap-3">
-                      <CardTitle className="line-clamp-2 text-base font-semibold leading-snug text-foreground">
-                        {video.title}
-                      </CardTitle>
+                      <div className="space-y-2">
+                        <CardTitle className="line-clamp-2 text-base font-semibold leading-snug text-foreground/90 group-hover:text-foreground transition-colors">
+                          {video.title}
+                        </CardTitle>
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                          <span className="size-1 rounded-full bg-emerald-400" />
+                          Ready for Chat
+                        </div>
+                      </div>
                       
                       <button
                         onClick={() => handleToggleSelect(video.video_id)}
@@ -300,14 +311,14 @@ export default function WorkspacePage() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="px-5 pb-5 pt-4 border-t border-white/5 bg-white/[0.01]">
-                    <div className="flex items-center gap-1">
+                  <CardContent className="px-5 pb-5 pt-4 border-t border-white/5 bg-white/[0.005]">
+                    <div className="flex items-center gap-2">
                       {/* Open Analysis Action */}
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleOpenAnalysis(video.video_id)}
-                        className="flex-1 gap-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                        className="flex-1 gap-1.5 rounded-lg border border-white/5 bg-white/[0.02] text-xs font-medium text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all"
                       >
                         <BookOpen className="size-3.5" />
                         Summary
@@ -315,10 +326,9 @@ export default function WorkspacePage() {
 
                       {/* Chat Action */}
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={() => handleOpenChat(video.video_id)}
-                        className="flex-1 gap-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                        className="flex-1 gap-1.5 rounded-lg bg-violet-600 text-xs font-semibold text-white hover:bg-violet-500 shadow-sm transition-all"
                       >
                         <MessageSquare className="size-3.5" />
                         Chat
@@ -329,7 +339,7 @@ export default function WorkspacePage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(video.video_id)}
-                        className="size-9 rounded-lg text-red-400/70 hover:bg-red-500/10 hover:text-red-400"
+                        className="size-8 shrink-0 rounded-lg text-muted-foreground/60 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                       >
                         <Trash2 className="size-3.5" />
                       </Button>
