@@ -9,6 +9,9 @@ from core.rag_chain import (
     ask_question,
     answer_multi
 )
+from fastapi import UploadFile, File
+import tempfile
+import shutil
 from fastapi.responses import PlainTextResponse
 from fastapi.responses import FileResponse
 from utils.pdf_export import create_summary_pdf
@@ -64,17 +67,16 @@ class MultiChatRequest(BaseModel):
 @app.post("/analyze")
 def analyze_video(data: AnalyzeRequest):
 
-   
     try:
         result = run_pipeline(
             data.source,
             data.language
         )
 
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Unable to download this YouTube video. YouTube may be blocking automated downloads."
+            detail="YouTube blocked this video download. Please try another video or upload a local file."
         )
 
 
@@ -113,6 +115,50 @@ def analyze_video(data: AnalyzeRequest):
                 []
         )
 
+    }
+
+@app.post("/upload-video")
+async def upload_video(
+    file: UploadFile = File(...)
+):
+    suffix = os.path.splitext(file.filename)[1]
+
+    with tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=suffix
+    ) as temp_file:
+
+        shutil.copyfileobj(
+            file.file,
+            temp_file
+        )
+
+        temp_path = temp_file.name
+
+    result = run_pipeline(
+        temp_path,
+        "english"
+    )
+
+    video_id = str(uuid.uuid4())
+
+    result["chat_history"] = []
+
+    workspace[video_id] = result
+
+    return {
+        "video_id": video_id,
+        "title": result["title"],
+        "summary": result["summary"],
+        "transcript": result["transcript"],
+        "key_takeaways": result["key_takeaways"],
+        "important_concepts": result["important_concepts"],
+        "interesting_questions": result["interesting_questions"],
+        "suggested_questions":
+            result.get(
+                "suggested_questions",
+                []
+            )
     }
 
 @app.get("/workspace")

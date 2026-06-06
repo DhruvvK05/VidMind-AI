@@ -18,7 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { analyzeVideo, ApiError } from "@/services/api";
+import { analyzeVideo, uploadVideo, ApiError } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -83,6 +83,7 @@ const steps = [
 export default function Home() {
   const router = useRouter();
   const [videoUrl, setVideoUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,6 +112,38 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleUpload(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!selectedFile) {
+      setError("Please select a video file.");
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await uploadVideo(selectedFile);
+      sessionStorage.setItem("vidmind-analysis", JSON.stringify(response));
+      router.push("/analyze");
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Something went wrong. Please try again.";
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+    if (error) setError(null);
   }
 
   return (
@@ -145,9 +178,6 @@ export default function Home() {
           </Button>
           <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground hover:text-foreground">
             <Link href="/multi-chat">Multi Chat</Link>
-          </Button>
-          <Button variant="outline" size="sm" className="hidden sm:inline-flex">
-            Sign in
           </Button>
         </div>
       </header>
@@ -233,6 +263,54 @@ export default function Home() {
               {error && (
                 <p className="mt-3 text-left text-sm text-red-400">{error}</p>
               )}
+            </form>
+
+            <div className="mt-6 flex items-center gap-4">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-xs font-medium text-muted-foreground">OR</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+
+            <form
+              onSubmit={handleUpload}
+              className="mt-6 w-full max-w-2xl"
+            >
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Choose Video File
+                  </label>
+                  <Input
+                    type="file"
+                    accept=".mp4,.mov,.avi,.mkv,.webm"
+                    onChange={handleFileChange}
+                    className="h-12 rounded-xl border-white/10 bg-white/5 text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-violet-600/20 file:text-violet-300 file:text-sm file:font-medium hover:file:bg-violet-600/30 sm:h-14 sm:text-base"
+                  />
+                </div>
+                {selectedFile && (
+                  <p className="text-sm text-muted-foreground">
+                    Selected: {selectedFile.name}
+                  </p>
+                )}
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isLoading || !selectedFile}
+                  className="h-12 gap-2 rounded-xl bg-violet-600 px-6 text-base font-medium hover:bg-violet-500 sm:h-14 sm:px-8"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      Upload & Analyze
+                      <ArrowRight className="size-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
             </form>
 
             <p className="mt-4 text-xs text-muted-foreground/75">

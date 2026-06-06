@@ -251,6 +251,79 @@ function LoadingBubble() {
   );
 }
 
+function SuggestedQuestionsCards({
+  questions,
+  onQuestionClick,
+  isLoading,
+}: {
+  questions: string[];
+  onQuestionClick: (question: string) => void;
+  isLoading: boolean;
+}) {
+  return (
+    <div className="mx-auto max-w-3xl space-y-3 pb-6">
+      <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+        Suggested Questions
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {questions.map((question, index) => (
+          <button
+            key={`${index}-${question}`}
+            type="button"
+            disabled={isLoading}
+            onClick={() => void onQuestionClick(question)}
+            className="group relative rounded-xl border border-white/5 bg-white/[0.02] p-4 text-left transition-all hover:border-violet-500/20 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-violet-600/15 ring-1 ring-violet-500/20 transition-colors group-hover:bg-violet-600/25">
+                <Sparkles className="size-3 text-violet-400" />
+              </div>
+              <p className="flex-1 text-sm leading-relaxed text-muted-foreground group-hover:text-foreground transition-colors">
+                {question}
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SuggestedQuestionsCompact({
+  questions,
+  onQuestionClick,
+  isLoading,
+}: {
+  questions: string[];
+  onQuestionClick: (question: string) => void;
+  isLoading: boolean;
+}) {
+  return (
+    <div className="border-b border-white/8 px-4 py-3 sm:px-6 transition-all duration-300">
+      <div className="mx-auto max-w-3xl">
+        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          Continue with
+        </p>
+        <div className="mt-2 flex overflow-x-auto pb-2 sm:pb-0 scrollbar-none sm:flex-wrap gap-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {questions.map((question, index) => (
+            <button
+              key={`${index}-${question}`}
+              type="button"
+              disabled={isLoading}
+              onClick={() => void onQuestionClick(question)}
+              className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/5 bg-white/[0.015] px-3 py-1.5 text-xs text-muted-foreground transition-all hover:border-violet-500/20 hover:bg-violet-500/5 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              title={question}
+            >
+              <span className="truncate max-w-[240px] sm:max-w-none">{question}</span>
+              <ChevronRight className="size-3 shrink-0 opacity-40 transition-opacity group-hover:opacity-85" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SourceCard({ source }: { source: SourceReference }) {
   const timestampUrl = source.video_url
     ? `${source.video_url}&t=${source.start_seconds}s`
@@ -359,6 +432,8 @@ export default function ChatPage() {
 
   const activeSources =
     messages.filter((m) => m.role === "assistant").at(-1)?.sources ?? [];
+
+  const hasUserMessages = messages.some((m) => m.role === "user");
 
   const sendMessage = useCallback(
     async (question: string) => {
@@ -507,32 +582,26 @@ export default function ChatPage() {
             </div>
           </ScrollArea>
 
+          {/* Suggested Questions - Large Cards (before first message) */}
+          {!hasUserMessages && suggestedQuestions.length > 0 && (
+            <div className="shrink-0 border-b border-white/8 px-4 py-6 sm:px-6 transition-all duration-300">
+              <SuggestedQuestionsCards
+                questions={suggestedQuestions}
+                onQuestionClick={sendMessage}
+                isLoading={isLoading}
+              />
+            </div>
+          )}
+
           {/* Input Area - Sticky Bottom */}
           <div className="shrink-0 border-t border-white/8 bg-background/80 backdrop-blur-sm">
-            {/* Suggested Follow-Ups Section */}
-            {suggestedQuestions.length > 0 && (
-              <div className="border-b border-white/8 px-4 py-3 sm:px-6">
-                <div className="mx-auto max-w-3xl">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-                    Continue with
-                  </p>
-                  <div className="mt-2 flex overflow-x-auto pb-2 sm:pb-0 scrollbar-none sm:flex-wrap gap-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-                    {suggestedQuestions.map((question, index) => (
-                      <button
-                        key={`${index}-${question}`}
-                        type="button"
-                        disabled={isLoading}
-                        onClick={() => void sendMessage(question)}
-                        className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/5 bg-white/[0.015] px-3 py-1.5 text-xs text-muted-foreground transition-all hover:border-violet-500/20 hover:bg-violet-500/5 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                        title={question}
-                      >
-                        <span className="truncate max-w-[240px] sm:max-w-none">{question}</span>
-                        <ChevronRight className="size-3 shrink-0 opacity-40 transition-opacity group-hover:opacity-85" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            {/* Suggested Follow-Ups Section - Compact (after first message) */}
+            {hasUserMessages && suggestedQuestions.length > 0 && (
+              <SuggestedQuestionsCompact
+                questions={suggestedQuestions}
+                onQuestionClick={sendMessage}
+                isLoading={isLoading}
+              />
             )}
 
             <form

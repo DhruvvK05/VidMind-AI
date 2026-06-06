@@ -209,6 +209,33 @@ export async function analyzeVideo(
   }
 }
 
+export async function uploadVideo(
+  file: File
+): Promise<AnalyzeVideoResponse> {
+  if (!file) {
+    throw new ApiError("A video file is required.");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await apiClient.post<AnalyzeVideoResponse>(
+      `${getApiBaseUrl()}/upload-video`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    handleRequestError(error);
+  }
+}
+
 function assertChatResponse(data: unknown): ChatResponse {
   if (
     data &&
