@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uuid
+from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 from main import run_pipeline
