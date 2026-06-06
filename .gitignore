@@ -1,39 +1,83 @@
+# ========================
 # Python
-__pycache__/
-*.pyc
-*.pyo
+# ========================
 
-# Virtual Env
+__pycache__/
+*.py[cod]
+*$py.class
+
 .venv/
 venv/
+env/
 
+# ========================
 # Environment
+# ========================
+
 .env
+.env.local
+.env.production
 
-# Databases
+# ========================
+# ChromaDB
+# ========================
+
 vector_db/
+chroma_db/
 
+# ========================
 # Downloads
-downloads/
+# ========================
 
-# Audio
+downloads/
 *.wav
 *.mp3
-*.webm
+*.mp4
 
-# Generated Files
+# ========================
+# PDFs
+# ========================
+
 *.pdf
 
-# IDE
-.vscode/
-.idea/
+# ========================
+# Cookies
+# ========================
 
+www.youtube.com_cookies.txt
+
+# ========================
 # OS
+# ========================
+
 .DS_Store
 Thumbs.db
 
-# Cookies
-youtube_cookies.txt
-www.youtube.com_cookies.txt
+# ========================
+# IDE
+# ========================
 
-OLD/
+.vscode/
+.idea/
+
+# ========================
+# Frontend
+# ========================
+
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# ========================
+# Logs
+# ========================
+
+*.log
+
+# ========================
+# Testing
+# ========================
+
+.pytest_cache/
+.coverage
+htmlcov/
