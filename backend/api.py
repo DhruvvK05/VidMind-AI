@@ -2,6 +2,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uuid
+import os
+from dotenv import load_dotenv
 from main import run_pipeline
 from core.rag_chain import (
     ask_question,
@@ -13,12 +15,19 @@ from utils.pdf_export import create_summary_pdf
 from utils.pdf_export import create_chat_pdf
 from fastapi.middleware.cors import CORSMiddleware
 
+load_dotenv()
+
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:3000"
+)
+
 app = FastAPI() 
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
+        FRONTEND_URL,
     ],
     allow_credentials=True,
     allow_methods=["*"],
