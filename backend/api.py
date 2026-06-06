@@ -27,8 +27,9 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        FRONTEND_URL,
-    ],
+    FRONTEND_URL,
+        "http://localhost:3000",
+    ]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -66,10 +67,19 @@ class MultiChatRequest(BaseModel):
 @app.post("/analyze")
 def analyze_video(data: AnalyzeRequest):
 
-    result = run_pipeline(
-        data.source,
-        data.language
-    )
+   
+    try:
+        result = run_pipeline(
+            data.source,
+            data.language
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Unable to download this YouTube video. YouTube may be blocking automated downloads."
+        )
+
 
     result["source_url"] = data.source
 
